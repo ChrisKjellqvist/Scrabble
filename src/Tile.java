@@ -25,5 +25,10 @@ public class Tile {
         this.state = state;
     }
 
+    public Tile(char letter) {
+        this.letter = letter;
+        state = 6;
+    }
+
 
 }

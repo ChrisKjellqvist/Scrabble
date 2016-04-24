@@ -1,6 +1,8 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +12,12 @@ import java.io.IOException;
  */
 public class Display extends JPanel{
     private static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    private static int squareSize;
+    public static int squareSize;
     private static int leftBorder;
     private static int topBorder;
+    public static int beingHeld = -1;
+
+    public Point mousePoint;
 
     private static Image star;
     private static Image TWS;
@@ -20,6 +25,8 @@ public class Display extends JPanel{
     private static Image TLS;
     private static Image DLS;
     private static Image[] letters = new Image[26];
+
+    public static Tile[] handToDisplay;
 
     Tile[][] board = new Tile[15][15];
     BufferedImage boardBuffer;
@@ -157,6 +164,15 @@ public class Display extends JPanel{
     @Override
     public void paintComponent(Graphics g){
         g.drawImage(boardBuffer, leftBorder, topBorder, boardBuffer.getWidth(), boardBuffer.getHeight(), null);
-
+        for (int i = 0; i < handToDisplay.length; i++) {
+            if(i!=beingHeld) {
+                g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i+1) * squareSize, squareSize, squareSize, null);
+            } else {
+                Point p = MouseInfo.getPointerInfo().getLocation();
+                SwingUtilities.convertPointFromScreen(p, this);
+                g.drawImage(letters[handToDisplay[i].letter-97], p.x, p.y, squareSize, squareSize, null);
+            }
+        }
     }
+
 }
