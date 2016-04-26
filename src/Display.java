@@ -130,7 +130,7 @@ public class Display extends JPanel {
         }
     }
 
-
+    //@TODO Fix this sorting method
     private void sortPlacedTiles() {
         if (tilesPlaced.size() > 1) {
             if (tilesPlaced.get(0).coords[0] == tilesPlaced.get(0).coords[0]) {

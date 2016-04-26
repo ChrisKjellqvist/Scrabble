@@ -68,6 +68,19 @@ public class Board {
         board[7][11] = new Tile(2);
     }
 
+    /**
+     * @TODO FIX THIS METHOD
+     * Possible make coords[] refer to coordinates on grid rather than on display
+     * This would require further fixage of the rest of the code then. Better
+     * change it before it's too late.
+     *
+     * Also, at the very least the method has to actually function correctly.
+     */
+
+    /**
+     * @param list - a list of placed tiles for the current move
+     * @return Whether or not the tiles are placed in a line essentially
+     */
     boolean isValidMove(ArrayList<Tile> list) {
         if (list.size() > 2) {
             if (list.get(0).coords[0] == list.get(1).coords[0]) {
