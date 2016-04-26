@@ -13,6 +13,9 @@ import java.util.ArrayList;
 public class main {
 
     static Display display;
+    static Tile[] home = new Tile[7];
+    static Tile[] away = new Tile[7];
+    static Tile[] currentHand;
     public static void main(String[] args) throws IOException{
         JFrame frame = new JFrame("Scrabble");
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -45,6 +48,22 @@ public class main {
                     }
 
                 }
+                if (display.withinBoard(e.getPoint())) {
+                    int x = (e.getX() - display.leftBorder) / display.squareSize;
+                    int y = (e.getY() - display.topBorder) / display.squareSize;
+                    Tile t = new Tile('a');
+                    t.coords[0] = x;
+                    t.coords[1] = y;
+                    for (int i = 0; i < currentHand.length; i++) {
+                        if (currentHand[i].equals(t)) {
+                            display.beingHeld = i;
+                            currentHand[i].placed = false;
+                            display.tilesPlaced.remove(currentHand[i]);
+                            time.start();
+                        }
+                    }
+
+                }
             }
 
             @Override
@@ -67,6 +86,7 @@ public class main {
                     display.tilesPlaced.sort(new TileComparator<>());
 
                 }
+                System.out.println(getCurrentWord());
             }
 
             @Override
@@ -88,9 +108,6 @@ public class main {
             }
         }
 
-        Tile[] home = new Tile[7];
-        Tile[] away = new Tile[7]; //This is the Computer player
-
         int temp;
         for (int i = 0; i < 7; i++) {
             temp = (int)(Math.random()*(bag.size()-1));
@@ -105,7 +122,15 @@ public class main {
         }
 
         display.handToDisplay = home;
+        currentHand = home;
         frame.setVisible(true);
     }
 
+    static String getCurrentWord() {
+        String t = "";
+        for (Tile temp : display.tilesPlaced) {
+            t += temp.letter;
+        }
+        return t;
+    }
 }

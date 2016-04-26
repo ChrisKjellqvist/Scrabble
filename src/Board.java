@@ -4,6 +4,7 @@ import java.util.ArrayList;
  * Created by chris on 4/25/16.
  */
 public class Board {
+    static Tile[][] referenceBoard;
     public int squareSize = 1;
     Tile[][] board = new Tile[15][15];
 
@@ -66,6 +67,7 @@ public class Board {
         board[3][7] = new Tile(2);
         board[11][7] = new Tile(2);
         board[7][11] = new Tile(2);
+        referenceBoard = board.clone();
     }
 
     /**
@@ -77,7 +79,6 @@ public class Board {
     boolean isValidMove(ArrayList<Tile> list) {
         if (list.size() > 1) {
             int alignment = findAlignment(list.get(0), list.get(1));
-            System.out.println(alignment);
             if (alignment == -1) {
                 return false;
             }

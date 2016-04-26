@@ -88,7 +88,6 @@ public class Display extends JPanel {
 
     }
 
-    //@TODO get rid of artifacts upon placing tile
     @Override
     public void paintComponent(Graphics g) {
         g.drawImage(boardBuffer, leftBorder, topBorder, boardBuffer.getWidth(), boardBuffer.getHeight(), null);
@@ -118,21 +117,26 @@ public class Display extends JPanel {
             }
         }
         for (int i = 0; i < handToDisplay.length; i++) {
-            if (i != beingHeld && !handToDisplay[i].placed) {
-                g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i + 1) * squareSize, squareSize, squareSize, null);
-            } else {
-                if (p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder && p.y < topBorder + boardSize) {
-                    int x = (p.x - leftBorder) / squareSize;
-                    int y = (p.y - topBorder) / squareSize;
-                    g.drawImage(letters[handToDisplay[i].letter - 97], p.x, p.y, squareSize, squareSize, null);
-                    for (int j = 1; j <= 2; j++) {
-                        g.drawRect(leftBorder + x * squareSize - j, topBorder + y * squareSize - j, squareSize + 2 * j, squareSize + 2 * j);
-                    }
+            if (!handToDisplay[i].placed) {
+                if (i != beingHeld) {
+                    g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i + 1) * squareSize, squareSize, squareSize, null);
                 } else {
-                    g.drawImage(letters[handToDisplay[i].letter - 97], p.x, p.y, squareSize, squareSize, null);
+                    if (p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder && p.y < topBorder + boardSize) {
+                        int x = (p.x - leftBorder) / squareSize;
+                        int y = (p.y - topBorder) / squareSize;
+                        g.drawImage(letters[handToDisplay[i].letter - 97], p.x, p.y, squareSize, squareSize, null);
+                        for (int j = 1; j <= 2; j++) {
+                            g.drawRect(leftBorder + x * squareSize - j, topBorder + y * squareSize - j, squareSize + 2 * j, squareSize + 2 * j);
+                        }
+                    } else {
+                        g.drawImage(letters[handToDisplay[i].letter - 97], p.x, p.y, squareSize, squareSize, null);
+                    }
                 }
             }
         }
     }
 
+    boolean withinBoard(Point p) {
+        return p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder && p.y < topBorder + boardSize;
+    }
 }
