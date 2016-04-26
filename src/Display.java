@@ -88,6 +88,7 @@ public class Display extends JPanel {
 
     }
 
+    //@TODO get rid of artifacts upon placing tile
     @Override
     public void paintComponent(Graphics g) {
         g.drawImage(boardBuffer, leftBorder, topBorder, boardBuffer.getWidth(), boardBuffer.getHeight(), null);
@@ -95,18 +96,24 @@ public class Display extends JPanel {
         SwingUtilities.convertPointFromScreen(p, this);
         for (Tile t : tilesPlaced) {
             boolean isValid = board.isValidMove(tilesPlaced);
-            g.drawImage(letters[t.letter - 97], t.coords[0],
-                    t.coords[1], squareSize, squareSize, null);
+            g.drawImage(letters[t.letter - 97], t.coords[0] * squareSize + leftBorder,
+                    t.coords[1] * squareSize + topBorder, squareSize, squareSize, null);
 
             if (isValid) {
-                g.setColor(Color.red);
-                for (int j = 1; j <= 2; j++) {
-                    g.drawRect(p.x - j, p.y - j, squareSize + 2 * j, squareSize + 2 * j);
-                }
-            } else {
                 g.setColor(Color.green);
                 for (int j = 1; j <= 2; j++) {
-                    g.drawRect(p.x - j, p.y - j, squareSize + 2 * j, squareSize + 2 * j);
+                    g.drawRect(t.coords[0] * squareSize + leftBorder - j,
+                            t.coords[1] * squareSize + topBorder - j,
+                            squareSize + 2 * j,
+                            squareSize + 2 * j);
+                }
+            } else {
+                g.setColor(Color.red);
+                for (int j = 1; j <= 2; j++) {
+                    g.drawRect(t.coords[0] * squareSize + leftBorder - j,
+                            t.coords[1] * squareSize + topBorder - j,
+                            squareSize + 2 * j,
+                            squareSize + 2 * j);
                 }
             }
         }
@@ -114,8 +121,6 @@ public class Display extends JPanel {
             if (i != beingHeld && !handToDisplay[i].placed) {
                 g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i + 1) * squareSize, squareSize, squareSize, null);
             } else {
-
-
                 if (p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder && p.y < topBorder + boardSize) {
                     int x = (p.x - leftBorder) / squareSize;
                     int y = (p.y - topBorder) / squareSize;
@@ -130,12 +135,4 @@ public class Display extends JPanel {
         }
     }
 
-    //@TODO Fix this sorting method
-    private void sortPlacedTiles() {
-        if (tilesPlaced.size() > 1) {
-            if (tilesPlaced.get(0).coords[0] == tilesPlaced.get(0).coords[0]) {
-
-            }
-        }
-    }
 }

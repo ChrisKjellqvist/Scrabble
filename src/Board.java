@@ -69,42 +69,50 @@ public class Board {
     }
 
     /**
-     * @TODO FIX THIS METHOD
-     * Possible make coords[] refer to coordinates on grid rather than on display
-     * This would require further fixage of the rest of the code then. Better
-     * change it before it's too late.
-     *
-     * Also, at the very least the method has to actually function correctly.
-     */
-
-    /**
+     * Functions by checking that every tile pair is adjacently aligned in
+     * the same way as every other tile pair.
      * @param list - a list of placed tiles for the current move
-     * @return Whether or not the tiles are placed in a line essentially
+     * @return Whether or not the tiles are placed in a line
      */
     boolean isValidMove(ArrayList<Tile> list) {
-        if (list.size() > 2) {
-            if (list.get(0).coords[0] == list.get(1).coords[0]) {
-                int x = list.get(0).coords[0];
-                int y = list.get(0).coords[1];
-                for (int i = 1; i < list.size(); i++) {
-                    Tile c = list.get(i);
-                    if (x != c.coords[0] || y != c.coords[1] - i * squareSize) {
-                        return false;
-                    }
-                }
-            } else {
-                int x = list.get(0).coords[0];
-                int y = list.get(0).coords[1];
-                for (int i = 1; i < list.size(); i++) {
-                    Tile c = list.get(i);
-                    if (y != c.coords[1] || x != c.coords[0] - i * squareSize) {
-                        return false;
-                    }
+        if (list.size() > 1) {
+            int alignment = findAlignment(list.get(0), list.get(1));
+            System.out.println(alignment);
+            if (alignment == -1) {
+                return false;
+            }
+            for (int i = 1; i < list.size() - 1; i++) {
+                int newAlignment = findAlignment(list.get(i), list.get(i + 1));
+                if (newAlignment != alignment) {
+                    return false;
                 }
             }
         } else {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param a arbitrary tile - needs to be the top/leftmost tile
+     * @param b arbitrary tile - needs to be the bottom/rightmost tile
+     * @return -1 if not aligned, 0 if horizontally aligned, 1 if vertically aligned
+     */
+    int findAlignment(Tile a, Tile b) {
+        if (a.coords[0] == b.coords[0]) {
+            if (a.coords[1] + 1 == b.coords[1]) {
+                return 1;
+            } else {
+                return -1;
+            }
+        } else if (a.coords[1] == b.coords[1]) {
+            if (a.coords[1] + 1 == b.coords[1]) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
     }
 }

@@ -14,7 +14,7 @@ public class main {
 
     static Display display;
     public static void main(String[] args) throws IOException{
-        JFrame frame = new JFrame("frame");
+        JFrame frame = new JFrame("Scrabble");
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
         display = new Display();
         frame.add(display);
@@ -54,13 +54,18 @@ public class main {
                     SwingUtilities.convertPointFromScreen(p, display);
                     int x = (p.x - display.leftBorder) / display.squareSize;
                     int y = (p.y - display.topBorder) / display.squareSize;
-
-                    display.handToDisplay[display.beingHeld].coords[0] = display.leftBorder + x * display.squareSize;
-                    display.handToDisplay[display.beingHeld].coords[1] = display.topBorder + y * display.squareSize;
-                    display.handToDisplay[display.beingHeld].placed = true;
-                    display.tilesPlaced.add(display.handToDisplay[display.beingHeld]);
+                    if (x >= 0 && x < 15 && y >= 0 && y < 15
+                            && !display.tilesPlaced.contains(display.handToDisplay[display.beingHeld])) {
+                        display.handToDisplay[display.beingHeld].coords[0] = x;
+                        display.handToDisplay[display.beingHeld].coords[1] = y;
+                        display.handToDisplay[display.beingHeld].placed = true;
+                        display.tilesPlaced.add(display.handToDisplay[display.beingHeld]);
+                    }
                     display.beingHeld = -1;
                     time.stop();
+                    display.repaint();
+                    display.tilesPlaced.sort(new TileComparator<>());
+
                 }
             }
 
@@ -100,9 +105,7 @@ public class main {
         }
 
         display.handToDisplay = home;
-
         frame.setVisible(true);
-
     }
 
 }

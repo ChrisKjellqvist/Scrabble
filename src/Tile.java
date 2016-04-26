@@ -39,7 +39,13 @@ public class Tile {
 
     @Override
     public String toString() {
-        return letter + " " + state;
+        return coords[0] + " " + coords[1];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        Tile t = (Tile) o;
+        return t.coords[0] == this.coords[0] && t.coords[1] == this.coords[1];
     }
 
 }
