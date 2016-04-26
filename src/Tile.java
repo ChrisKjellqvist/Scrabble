@@ -21,6 +21,13 @@ public class Tile {
      */
     public char letter;
 
+    /**
+     * Only applies if letter is in hand. Used for graphics purposes.
+     */
+    public boolean placed;
+    public int[] coords = new int[2];
+
+
     public Tile(int state){
         this.state = state;
     }
@@ -30,5 +37,9 @@ public class Tile {
         state = 6;
     }
 
+    @Override
+    public String toString() {
+        return letter + " " + state;
+    }
 
 }

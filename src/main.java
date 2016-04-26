@@ -37,17 +37,31 @@ public class main {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if(e.getX()>30 && e.getX()<30+Display.squareSize) {
-                    Display.beingHeld = e.getY() / Display.squareSize - 1;
-                    time.start();
+                if (e.getX() > 30 && e.getX() < 30 + display.squareSize) {
+                    int y = e.getY() / display.squareSize - 1;
+                    if (y <= 7) {
+                        display.beingHeld = e.getY() / display.squareSize - 1;
+                        time.start();
+                    }
 
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                Display.beingHeld = -1;
-                time.stop();
+                if (display.beingHeld != -1) {
+                    Point p = MouseInfo.getPointerInfo().getLocation();
+                    SwingUtilities.convertPointFromScreen(p, display);
+                    int x = (p.x - display.leftBorder) / display.squareSize;
+                    int y = (p.y - display.topBorder) / display.squareSize;
+
+                    display.handToDisplay[display.beingHeld].coords[0] = display.leftBorder + x * display.squareSize;
+                    display.handToDisplay[display.beingHeld].coords[1] = display.topBorder + y * display.squareSize;
+                    display.handToDisplay[display.beingHeld].placed = true;
+                    display.tilesPlaced.add(display.handToDisplay[display.beingHeld]);
+                    display.beingHeld = -1;
+                    time.stop();
+                }
             }
 
             @Override
@@ -85,7 +99,7 @@ public class main {
 
         }
 
-        Display.handToDisplay = home;
+        display.handToDisplay = home;
 
         frame.setVisible(true);
 
