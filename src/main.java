@@ -125,6 +125,8 @@ public class main {
         currentHand = home;
         System.out.println(Dictionary.findBestWord(getHandsLetterDistribution(currentHand)));
         frame.setVisible(true);
+
+
     }
 
     static String getCurrentWord() {

@@ -26,6 +26,7 @@ public class Tile {
      */
     public boolean placed;
     public int[] coords = new int[2];
+    public boolean spelledHorizontally = false;
 
 
     public Tile(int state){

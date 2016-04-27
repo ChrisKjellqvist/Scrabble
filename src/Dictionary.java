@@ -59,6 +59,38 @@ public class Dictionary {
         return possibleWords.get(maxIndex);
     }
 
+    public static String findBestWordContaining(byte[] distribution, char c) {
+        ArrayList<String> possibleWords = new ArrayList<String>();
+        ArrayList<Integer> scores = new ArrayList<Integer>();
+        System.out.println(Arrays.toString(distribution));
+        for (int i = 0; i < dictionary.size(); i++) {
+            if (isCompatible(distribution, letterDistributions.get(i))) {
+                possibleWords.add(dictionary.get(i));
+            }
+        }
+        for (int i = 0; i < possibleWords.size(); i++) {
+            scores.add(i, getScore(possibleWords.get(i)));
+        }
+        int maxScore = 0;
+        int maxIndex = 0;
+        for (int i = 0; i < scores.size(); i++) {
+            if (scores.get(i) > maxScore) {
+                maxScore = scores.get(i);
+                maxIndex = i;
+            }
+        }
+        if (arContainsChar(possibleWords.get(maxIndex).toCharArray(), c)) {
+            return possibleWords.get(maxIndex);
+        } else {
+            for (int i = 0; i < possibleWords.size(); i++) {
+                if (arContainsChar(possibleWords.get(i).toCharArray(), c)) {
+                    return possibleWords.get(i);
+                }
+            }
+        }
+        return null;
+    }
+
     public static int getScore(String str) {
         int score = 0;
         for (char c : str.toCharArray()) {
@@ -67,12 +99,21 @@ public class Dictionary {
         return score;
     }
 
-    public static boolean isCompatible(byte[] hand, byte[] distribution) {
+    private static boolean isCompatible(byte[] hand, byte[] distribution) {
         for (int i = 0; i < 26; i++) {
             if (distribution[i] > hand[i]) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static boolean arContainsChar(char[] ar, char c) {
+        for (char t : ar) {
+            if (t == c) {
+                return true;
+            }
+        }
+        return false;
     }
 }
