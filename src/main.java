@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -18,6 +19,7 @@ public class main {
     static Tile[] currentHand;
     public static void main(String[] args) throws IOException{
         JFrame frame = new JFrame("Scrabble");
+        Dictionary dictionary = new Dictionary(new File("resources/ospd.txt"));
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
         display = new Display();
         frame.add(display);
@@ -86,7 +88,6 @@ public class main {
                     display.tilesPlaced.sort(new TileComparator<>());
 
                 }
-                System.out.println(getCurrentWord());
             }
 
             @Override
@@ -111,7 +112,6 @@ public class main {
         int temp;
         for (int i = 0; i < 7; i++) {
             temp = (int)(Math.random()*(bag.size()-1));
-            System.out.println(temp);
             home[i] = bag.get(temp);
             bag.remove(temp);
 
@@ -123,6 +123,7 @@ public class main {
 
         display.handToDisplay = home;
         currentHand = home;
+        System.out.println(Dictionary.findBestWord(getHandsLetterDistribution(currentHand)));
         frame.setVisible(true);
     }
 
@@ -132,5 +133,13 @@ public class main {
             t += temp.letter;
         }
         return t;
+    }
+
+    public static byte[] getHandsLetterDistribution(Tile[] ar) {
+        byte[] toReturn = new byte[26];
+        for (Tile t : ar) {
+            toReturn[t.letter - 97]++;
+        }
+        return toReturn;
     }
 }
