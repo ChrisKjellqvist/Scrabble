@@ -16,8 +16,8 @@ public class Dictionary {
     private static int[] scores = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 
     //creates the database holding all words and their letter distributions
-    public Dictionary(File scrabble_dictionary.txt) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(scrabble_dictionary.txt));
+    public Dictionary(File textfile) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(textfile));
         String string;
         while ((string = bufferedReader.readLine()) != null) {
             dictionary.add(string);
