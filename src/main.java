@@ -19,7 +19,7 @@ public class main {
     static Tile[] currentHand;
     public static void main(String[] args) throws IOException{
         JFrame frame = new JFrame("Scrabble");
-        Dictionary dictionary = new Dictionary(new File("resources/ospd.txt"));
+        Dictionary dictionary = new Dictionary(new File("resources/scrabble_dictionary.txt"));
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
         display = new Display();
         frame.add(display);
