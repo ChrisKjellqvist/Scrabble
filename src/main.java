@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,11 +14,18 @@ public class main {
     static Tile[] home = new Tile[7];
     static Tile[] away = new Tile[7];
     static Tile[] currentHand;
+
+    static int homeScore = 0;
+    static int awayScore = 0;
+
+    static boolean turnisOver = false;
+
     public static void main(String[] args) throws IOException{
         JFrame frame = new JFrame("Scrabble");
         Dictionary dictionary = new Dictionary(new File("resources/ospd.txt"));
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
-        display = new Display();
+        Board board = new Board();
+        display = new Display(board);
         frame.add(display);
 
         Timer time = new Timer(1000 / 60, new ActionListener() {
@@ -100,7 +104,24 @@ public class main {
 
             }
         });
+        frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
 
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == ' ' && Dictionary.isWord(getCurrentWord())) {
+                    turnisOver = true;
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
         ArrayList<Tile> bag = new ArrayList<>();
         int[] distributions = {9, 2, 2, 4, 12, 2, 3, 2, 9, 1, 1, 4, 2, 6, 8, 2, 1, 6, 4, 6, 4, 2, 2, 1, 2, 1};
         for (int i = 0; i < 26; i++) {
@@ -120,13 +141,19 @@ public class main {
             bag.remove(temp);
 
         }
-
         display.handToDisplay = home;
         currentHand = home;
         System.out.println(Dictionary.findBestWord(getHandsLetterDistribution(currentHand)));
         frame.setVisible(true);
 
+        while (!board.isGameOver()) {
+            display.handToDisplay = home;
+            currentHand = home;
+            while (!turnisOver) {
 
+            }
+
+        }
     }
 
     static String getCurrentWord() {
@@ -144,4 +171,5 @@ public class main {
         }
         return toReturn;
     }
+
 }

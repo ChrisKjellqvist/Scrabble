@@ -123,41 +123,41 @@ public class Board {
         byte[] dist = Dictionary.getLetterDistribution(str);
         dist[fixedLetter.letter - 97]++;
         String bestWord = Dictionary.findBestWordContaining(dist, fixedLetter.letter);
-        char[] charAr = bestWord.toCharArray();
-        for (int i = 0; i < charAr.length; i++) {
-            if (charAr[i] == fixedLetter.letter) {
-                charAr[i] = '_';
+        for (int i = 0; i < bestWord.length(); i++) {
+            if (bestWord.charAt(i) == fixedLetter.letter) {
+                bestWord.replaceFirst(Character.toString(fixedLetter.letter), "_");
                 break;
             }
         }
-        return fitsAtLetter(charAr, fixedLetter);
+        return fitsAtLetter(bestWord, fixedLetter);
     }
 
-    public boolean fitsAtLetter(char[] word, Tile t) {
+    public boolean fitsAtLetter(String word, Tile t) {
         String prefix = "";
         String suffix = "";
         int ind = 0;
-        for (int i = 0; i < word.length; i++) {
-            if (word[i] == '_') {
-                ind = i + 1;
+        for (int i = 0; i < word.length(); i++) {
+            if (word.charAt(i) == '_') {
+                ind = i;
                 break;
             }
         }
-        int direction;
-        int opp;
+        prefix = word.substring(0, ind);
+        suffix = word.substring(ind + 1, word.length());
+
         if (t.spelledHorizontally) {
             for (int i = t.coords[1] - prefix.length(); i < t.coords[1]; i++) {
                 try {
-                    if (board[i][t.coords[1] + 1].state != 0 || board[i][t.coords[1] - 1].state != 0) {
+                    if (board[t.coords[0] + 1][i].state != 0 || board[i][t.coords[1] - 1].state != 0) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
                     return false;
                 }
             }
-            for (int i = t.coords[direction] + 1; i < t.coords[direction] + suffix.length(); i++) {
+            for (int i = t.coords[1] + 1; i < t.coords[1] + suffix.length(); i++) {
                 try {
-                    if (board[i][t.coords[1] + 1].state != 0 || board[i][t.coords[1] - 1].state != 0) {
+                    if (board[t.coords[0] + 1][i].state != 0 || board[i][t.coords[1] - 1].state != 0) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
@@ -166,18 +166,18 @@ public class Board {
             }
         } else {
             //@TODO make it so that AI can play along sides
-            for (int i = t.coords[direction] - prefix.length(); i < t.coords[direction]; i++) {
+            for (int i = t.coords[0] - prefix.length(); i < t.coords[0]; i++) {
                 try {
-                    if (board[i][t.coords[1] + 1].state != 0 || board[i][t.coords[1] - 1].state != 0) {
+                    if (board[i][t.coords[1] + 1].state != 0 || board[t.coords[0] - 1][i].state != 0) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
                     return false;
                 }
             }
-            for (int i = t.coords[direction] + 1; i < t.coords[direction] + suffix.length(); i++) {
+            for (int i = t.coords[0] + 1; i < t.coords[0] + suffix.length(); i++) {
                 try {
-                    if (board[i][t.coords[1] + 1].state != 0 || board[i][t.coords[1] - 1].state != 0) {
+                    if (board[i][t.coords[1] + 1].state != 0 || board[t.coords[0] - 1][i].state != 0) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
@@ -186,5 +186,10 @@ public class Board {
             }
         }
         return true;
+    }
+
+    //@TODO fix this
+    public boolean isGameOver() {
+        return false;
     }
 }

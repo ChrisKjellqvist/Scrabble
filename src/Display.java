@@ -26,14 +26,14 @@ public class Display extends JPanel {
     public Point mousePoint;
     public Tile[] handToDisplay;
 
-    Board board = new Board();
+    Board board;
     BufferedImage boardBuffer;
     ArrayList<Tile> tilesPlaced = new ArrayList<>();
 
 
-    public Display() throws IOException {
+    public Display(Board board) throws IOException {
         super();
-
+        this.board = board;
         star = ImageIO.read(new File("resources/star.png"));
         TWS = ImageIO.read(new File("resources/TWS.png"));
         DWS = ImageIO.read(new File("resources/DWS.png"));
