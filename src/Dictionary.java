@@ -10,13 +10,14 @@ import java.util.Arrays;
  */
 public class Dictionary {
     private static final byte[] defaultArray = new byte[26];
-    //@TODO make a dictionary
+    //@TODO make a dictionary **DONE 4/28/16
     private static ArrayList<String> dictionary = new ArrayList<>();
     private static ArrayList<byte[]> letterDistributions = new ArrayList<>();
     private static int[] scores = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 
-    public Dictionary(File textFile) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(textFile));
+    //creates the database holding all words and their letter distributions
+    public Dictionary(File scrabble_dictionary.txt) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(scrabble_dictionary.txt));
         String string;
         while ((string = bufferedReader.readLine()) != null) {
             dictionary.add(string);
@@ -24,6 +25,7 @@ public class Dictionary {
         }
     }
 
+    //Letter distribution is an array parallel to the 26 letters, refering to the number of times each letter appears in the word.
     public static byte[] getLetterDistribution(String word) {
         byte[] distribution = defaultArray.clone();
         for (char c : word.toCharArray()) {
@@ -31,11 +33,17 @@ public class Dictionary {
         }
         return distribution;
     }
-
+    //Determines if a String is a word in the dictionary. 
     public static boolean isWord(String word) {
-        return true;
+        for(int i = 0; i < dictionary.size(); i++){
+            if(word.equalsIgnoreCase(dictionary.get(i))){
+                return true;
+            }
+        }
+        return false;
     }
-
+    
+    //Returns the word with the best score given a specific letter distribution.
     public static String findBestWord(byte[] distribution) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
@@ -58,7 +66,8 @@ public class Dictionary {
         }
         return possibleWords.get(maxIndex);
     }
-
+    
+    
     public static String findBestWordContaining(byte[] distribution, char c) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
@@ -99,6 +108,7 @@ public class Dictionary {
         return score;
     }
 
+    //Determines if the hand is able to play the word in question.
     private static boolean isCompatible(byte[] hand, byte[] distribution) {
         for (int i = 0; i < 26; i++) {
             if (distribution[i] > hand[i]) {
@@ -108,6 +118,7 @@ public class Dictionary {
         return true;
     }
 
+    //Checks if a character is present in a certain word.
     private static boolean arContainsChar(char[] ar, char c) {
         for (char t : ar) {
             if (t == c) {
