@@ -11,17 +11,23 @@ import java.util.Arrays;
 public class Dictionary {
     private static final byte[] defaultArray = new byte[26];
     //@TODO make a dictionary
-    private static ArrayList<String> dictionary = new ArrayList<>();
-    private static ArrayList<byte[]> letterDistributions = new ArrayList<>();
+    private static String[] dictionary;
+    private static byte[][] letterDistributions;
     private static int[] scores = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 
     public Dictionary(File textFile) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(textFile));
         String string;
+        ArrayList<String> temp = new ArrayList<String>();
+        ArrayList<byte[]> temp2 = new ArrayList<byte[]>();
         while ((string = bufferedReader.readLine()) != null) {
-            dictionary.add(string);
-            letterDistributions.add(getLetterDistribution(string));
+            temp.add(string);
+            temp2.add(getLetterDistribution(string));
         }
+        dictionary = new String[temp.size()];
+        letterDistributions = new byte[temp2.size()][26];
+        temp.toArray(dictionary);
+        temp2.toArray(letterDistributions);
     }
 
     public static byte[] getLetterDistribution(String word) {
@@ -33,16 +39,16 @@ public class Dictionary {
     }
 
     public static boolean isWord(String word) {
-        return true;
+        return Arrays.binarySearch(dictionary, word) > 0;
     }
 
     public static String findBestWord(byte[] distribution) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
         System.out.println(Arrays.toString(distribution));
-        for (int i = 0; i < dictionary.size(); i++) {
-            if (isCompatible(distribution, letterDistributions.get(i))) {
-                possibleWords.add(dictionary.get(i));
+        for (int i = 0; i < dictionary.length; i++) {
+            if (isCompatible(distribution, letterDistributions[i])) {
+                possibleWords.add(dictionary[i]);
             }
         }
         for (int i = 0; i < possibleWords.size(); i++) {
@@ -63,9 +69,9 @@ public class Dictionary {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
         System.out.println(Arrays.toString(distribution));
-        for (int i = 0; i < dictionary.size(); i++) {
-            if (isCompatible(distribution, letterDistributions.get(i))) {
-                possibleWords.add(dictionary.get(i));
+        for (int i = 0; i < dictionary.length; i++) {
+            if (isCompatible(distribution, letterDistributions[i])) {
+                possibleWords.add(dictionary[i]);
             }
         }
         for (int i = 0; i < possibleWords.size(); i++) {
