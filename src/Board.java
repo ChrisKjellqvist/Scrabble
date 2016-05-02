@@ -7,9 +7,6 @@ public class Board {
     static Tile[][] referenceBoard;
     public int squareSize = 1;
     Tile[][] board = new Tile[15][15];
-
-    ArrayList<Tile> placedTiles = new ArrayList<>();
-
     public Board() {
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
@@ -122,7 +119,8 @@ public class Board {
     public boolean isWordPossible(String str, Tile fixedLetter) {
         byte[] dist = Dictionary.getLetterDistribution(str);
         dist[fixedLetter.letter - 97]++;
-        String bestWord = Dictionary.findBestWordContaining(dist, fixedLetter.letter);
+        //@TODO turn new ArrayList<> to blacklist
+        String bestWord = Dictionary.findBestWordContaining(dist, fixedLetter.letter, new ArrayList<>());
         for (int i = 0; i < bestWord.length(); i++) {
             if (bestWord.charAt(i) == fixedLetter.letter) {
                 bestWord.replaceFirst(Character.toString(fixedLetter.letter), "_");
@@ -132,6 +130,7 @@ public class Board {
         return fitsAtLetter(bestWord, fixedLetter);
     }
 
+    //@TODO make thisi work with Tile[]
     public boolean fitsAtLetter(String word, Tile t) {
         String prefix = "";
         String suffix = "";
@@ -148,7 +147,7 @@ public class Board {
         if (t.spelledHorizontally) {
             for (int i = t.coords[1] - prefix.length(); i < t.coords[1]; i++) {
                 try {
-                    if (board[t.coords[0] + 1][i].state != 0 || board[i][t.coords[1] - 1].state != 0) {
+                    if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
@@ -157,7 +156,7 @@ public class Board {
             }
             for (int i = t.coords[1] + 1; i < t.coords[1] + suffix.length(); i++) {
                 try {
-                    if (board[t.coords[0] + 1][i].state != 0 || board[i][t.coords[1] - 1].state != 0) {
+                    if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
@@ -168,7 +167,7 @@ public class Board {
             //@TODO make it so that AI can play along sides
             for (int i = t.coords[0] - prefix.length(); i < t.coords[0]; i++) {
                 try {
-                    if (board[i][t.coords[1] + 1].state != 0 || board[t.coords[0] - 1][i].state != 0) {
+                    if (board[i][t.coords[1] + 1].state != Tile.BLANK || board[t.coords[0] - 1][i].state != Tile.BLANK) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
@@ -177,7 +176,7 @@ public class Board {
             }
             for (int i = t.coords[0] + 1; i < t.coords[0] + suffix.length(); i++) {
                 try {
-                    if (board[i][t.coords[1] + 1].state != 0 || board[t.coords[0] - 1][i].state != 0) {
+                    if (board[i][t.coords[1] + 1].state != Tile.BLANK || board[t.coords[0] - 1][i].state != Tile.BLANK) {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException exc) {
@@ -192,4 +191,44 @@ public class Board {
     public boolean isGameOver() {
         return false;
     }
+
+    public int getScore(ArrayList<Tile> list) {
+        int score = 0;
+        int wordMultiplier = 1;
+        for (Tile t : list) {
+            if (t.isFixed) {
+                score += Dictionary.getLetterScore(t.letter);
+            } else {
+                for (int i = 0; i < list.size(); i++) {
+                    int[] tempCoords = list.get(i).coords.clone();
+                    Tile tileTemp = referenceBoard[tempCoords[0]][tempCoords[1]];
+                    switch (tileTemp.state) {
+                        case Tile.DL:
+                            score += Dictionary.getLetterScore(t.letter) * 2;
+                            break;
+                        case Tile.DW:
+                            score += Dictionary.getLetterScore(t.letter);
+                            wordMultiplier *= 2;
+                            break;
+                        case Tile.BLANK:
+                            score += Dictionary.getLetterScore(t.letter);
+                            break;
+                        case Tile.STAR:
+                            wordMultiplier *= 2;
+                            score += Dictionary.getLetterScore(t.letter);
+                            break;
+                        case Tile.TL:
+                            score += Dictionary.getLetterScore(t.letter) * 3;
+                            break;
+                        case Tile.TW:
+                            score += Dictionary.getLetterScore(t.letter);
+                            wordMultiplier *= 3;
+                            break;
+                    }
+                }
+            }
+        }
+        return score * wordMultiplier;
+    }
+
 }

@@ -14,6 +14,14 @@ public class Tile {
      * 6 placed tile
      *
      */
+
+    static final int BLANK = 0;
+    static final int STAR = 1;
+    static final int DL = 2;
+    static final int TL = 3;
+    static final int DW = 4;
+    static final int TW = 5;
+    static final int PLACED_TILE = 6;
     public int state;
 
     /**
@@ -25,6 +33,8 @@ public class Tile {
      * Only applies if letter is in hand. Used for graphics purposes.
      */
     public boolean placed;
+
+    public boolean isFixed = false;
     public int[] coords = new int[2];
     public boolean spelledHorizontally = false;
 
@@ -35,7 +45,7 @@ public class Tile {
 
     public Tile(char letter) {
         this.letter = letter;
-        state = 6;
+        state = PLACED_TILE;
     }
 
     @Override

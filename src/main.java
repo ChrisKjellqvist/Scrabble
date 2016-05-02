@@ -22,7 +22,7 @@ public class main {
 
     public static void main(String[] args) throws IOException{
         JFrame frame = new JFrame("Scrabble");
-        Dictionary dictionary = new Dictionary(new File("resources/scrabble_dictionary.txt"));
+        Dictionary dictionary = new Dictionary(new File("resources/ospd.txt"));
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
         Board board = new Board();
         display = new Display(board);
@@ -150,8 +150,9 @@ public class main {
             display.handToDisplay = home;
             currentHand = home;
             while (!turnisOver) {
-
             }
+            homeScore += board.getScore(display.tilesPlaced);
+
 
         }
     }

@@ -10,10 +10,10 @@ import java.util.Arrays;
  */
 public class Dictionary {
     private static final byte[] defaultArray = new byte[26];
+    private static final int[] scores = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
     //@TODO make a dictionary
     private static String[] dictionary;
     private static byte[][] letterDistributions;
-    private static int[] scores = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 
     public Dictionary(File textFile) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(textFile));
@@ -65,7 +65,7 @@ public class Dictionary {
         return possibleWords.get(maxIndex);
     }
 
-    public static String findBestWordContaining(byte[] distribution, char c) {
+    public static String findBestWordContaining(byte[] distribution, char c, ArrayList<String> blacklist) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
         System.out.println(Arrays.toString(distribution));
@@ -74,6 +74,13 @@ public class Dictionary {
                 possibleWords.add(dictionary[i]);
             }
         }
+
+        for (String str : blacklist) {
+            if (possibleWords.contains(str)) {
+                possibleWords.remove(str);
+            }
+        }
+
         for (int i = 0; i < possibleWords.size(); i++) {
             scores.add(i, getScore(possibleWords.get(i)));
         }
@@ -103,6 +110,10 @@ public class Dictionary {
             score += scores[c - 97];
         }
         return score;
+    }
+
+    public static int getLetterScore(char c) {
+        return scores[c - 97];
     }
 
     private static boolean isCompatible(byte[] hand, byte[] distribution) {
