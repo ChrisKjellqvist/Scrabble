@@ -11,7 +11,6 @@ import java.util.Arrays;
 public class Dictionary {
     private static final byte[] defaultArray = new byte[26];
     private static final int[] scores = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
-    //@TODO make a dictionary
     private static String[] dictionary;
     private static byte[][] letterDistributions;
 
@@ -38,10 +37,24 @@ public class Dictionary {
         return distribution;
     }
 
+    public static byte[] getLetterDistribution(Tile[] hand) {
+        byte[] distribution = defaultArray.clone();
+        for (Tile t : hand) {
+            distribution[t.letter - 97]++;
+        }
+        return distribution;
+    }
+
     public static boolean isWord(String word) {
         return Arrays.binarySearch(dictionary, word) > 0;
     }
 
+    /**
+     * Only used if computer goes first.
+     *
+     * @param distribution
+     * @return
+     */
     public static String findBestWord(byte[] distribution) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();

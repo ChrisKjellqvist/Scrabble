@@ -116,36 +116,92 @@ public class Board {
         }
     }
 
-    public boolean isWordPossible(String str, Tile fixedLetter) {
-        byte[] dist = Dictionary.getLetterDistribution(str);
-        dist[fixedLetter.letter - 97]++;
-        //@TODO turn new ArrayList<> to blacklist
-        String bestWord = Dictionary.findBestWordContaining(dist, fixedLetter.letter, new ArrayList<>());
-        for (int i = 0; i < bestWord.length(); i++) {
-            if (bestWord.charAt(i) == fixedLetter.letter) {
-                bestWord.replaceFirst(Character.toString(fixedLetter.letter), "_");
-                break;
+    public String getBestWordPossible(Tile[] hand, Tile fixed) {
+        ArrayList<String> blacklist = new ArrayList<>();
+        byte[] dist = Dictionary.getLetterDistribution(hand);
+        dist[fixed.letter - 97]++;
+        String bestWord = Dictionary.findBestWordContaining(dist, fixed.letter, blacklist);
+
+        while (!fitsAtLetter(getTilePlacement(bestWord, fixed))) {
+            blacklist.add(bestWord);
+            bestWord = Dictionary.findBestWordContaining(dist, fixed.letter, blacklist);
+            if (bestWord == null) {
+                return null;
             }
         }
-        return fitsAtLetter(bestWord, fixedLetter);
+        return bestWord;
     }
 
-    //@TODO make thisi work with Tile[]
-    public boolean fitsAtLetter(String word, Tile t) {
-        String prefix = "";
-        String suffix = "";
-        int ind = 0;
+    public Tile[] getTilePlacement(String word, Tile fixed) {
+        Tile[] tilesForWord = new Tile[word.length()];
+        boolean q = true;
+        int prefixLength = 0;
+        int suffixLength = 0;
         for (int i = 0; i < word.length(); i++) {
-            if (word.charAt(i) == '_') {
-                ind = i;
-                break;
+            if (fixed.letter == word.charAt(i)) {
+                q = false;
+            } else if (q) {
+                prefixLength++;
+            } else {
+                suffixLength++;
             }
         }
-        prefix = word.substring(0, ind);
-        suffix = word.substring(ind + 1, word.length());
+        int index = 0;
+        if (fixed.spelledHorizontally) {
+            for (int i = fixed.coords[1] - prefixLength; i < fixed.coords[1]; i++) {
+                Tile temp = new Tile(word.charAt(index));
+                temp.coords[0] = fixed.coords[0];
+                temp.coords[1] = i;
+                tilesForWord[index] = temp;
+                index++;
+            }
+            tilesForWord[index] = fixed;
+            index++;
+            for (int i = fixed.coords[1] + 1; i < fixed.coords[1] + suffixLength; i++) {
+                Tile temp = new Tile(word.charAt(index));
+                temp.coords[0] = fixed.coords[0];
+                temp.coords[1] = i;
+                tilesForWord[index] = temp;
+                index++;
+            }
+        } else {
+            for (int i = fixed.coords[0] - prefixLength; i < fixed.coords[0]; i++) {
+                Tile temp = new Tile(word.charAt(index));
+                temp.coords[0] = i;
+                temp.coords[1] = fixed.coords[1];
+                tilesForWord[index] = temp;
+                index++;
+            }
+            tilesForWord[index] = fixed;
+            index++;
+            for (int i = fixed.coords[0] + 1; i < fixed.coords[0] + suffixLength; i++) {
+                Tile temp = new Tile(word.charAt(index));
+                temp.coords[0] = i;
+                temp.coords[1] = fixed.coords[1];
+                tilesForWord[index] = temp;
+                index++;
+            }
+        }
+        return tilesForWord;
+    }
 
+    public boolean fitsAtLetter(Tile[] tiles) {
+        boolean temp = true;
+        int prefixLength = 0;
+        int suffixLength = 0;
+        Tile t = new Tile(0);
+        for (int i = 0; i < tiles.length; i++) {
+            if (tiles[i].isFixed) {
+                t = tiles[i];
+                temp = false;
+            } else if (temp) {
+                prefixLength++;
+            } else if (!temp) {
+                suffixLength++;
+            }
+        }
         if (t.spelledHorizontally) {
-            for (int i = t.coords[1] - prefix.length(); i < t.coords[1]; i++) {
+            for (int i = t.coords[1] - prefixLength; i < t.coords[1]; i++) {
                 try {
                     if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
                         return false;
@@ -154,7 +210,7 @@ public class Board {
                     return false;
                 }
             }
-            for (int i = t.coords[1] + 1; i < t.coords[1] + suffix.length(); i++) {
+            for (int i = t.coords[1] + 1; i < t.coords[1] + suffixLength; i++) {
                 try {
                     if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
                         return false;
@@ -164,8 +220,7 @@ public class Board {
                 }
             }
         } else {
-            //@TODO make it so that AI can play along sides
-            for (int i = t.coords[0] - prefix.length(); i < t.coords[0]; i++) {
+            for (int i = t.coords[0] - prefixLength; i < t.coords[0]; i++) {
                 try {
                     if (board[i][t.coords[1] + 1].state != Tile.BLANK || board[t.coords[0] - 1][i].state != Tile.BLANK) {
                         return false;
@@ -174,7 +229,7 @@ public class Board {
                     return false;
                 }
             }
-            for (int i = t.coords[0] + 1; i < t.coords[0] + suffix.length(); i++) {
+            for (int i = t.coords[0] + 1; i < t.coords[0] + suffixLength; i++) {
                 try {
                     if (board[i][t.coords[1] + 1].state != Tile.BLANK || board[t.coords[0] - 1][i].state != Tile.BLANK) {
                         return false;
@@ -192,15 +247,15 @@ public class Board {
         return false;
     }
 
-    public int getScore(ArrayList<Tile> list) {
+    public int getScore(Tile[] list) {
         int score = 0;
         int wordMultiplier = 1;
         for (Tile t : list) {
             if (t.isFixed) {
                 score += Dictionary.getLetterScore(t.letter);
             } else {
-                for (int i = 0; i < list.size(); i++) {
-                    int[] tempCoords = list.get(i).coords.clone();
+                for (int i = 0; i < list.length; i++) {
+                    int[] tempCoords = list[i].coords.clone();
                     Tile tileTemp = referenceBoard[tempCoords[0]][tempCoords[1]];
                     switch (tileTemp.state) {
                         case Tile.DL:

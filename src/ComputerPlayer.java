@@ -4,7 +4,7 @@ import java.util.ArrayList;
  * Created by chris on 5/2/16.
  */
 public class ComputerPlayer {
-    public static ArrayList<Tile> getNextMove(Board board, Tile[] hand) {
+    public static Tile[] getNextMove(Board board, Tile[] hand) {
         ArrayList<Tile> possiblePlaces = new ArrayList<>();
         for (int i = 0; i < board.board.length; i++) {
             for (int j = 0; j < board.board[0].length; j++) {
@@ -13,13 +13,27 @@ public class ComputerPlayer {
                 }
             }
         }
-
         ArrayList<Tile[]> words = new ArrayList<>();
         ArrayList<Integer> scores = new ArrayList<>();
-        for (Tile t : possiblePlaces) {
 
+        for (Tile t : possiblePlaces) {
+            String str = board.getBestWordPossible(hand, t);
+            if (!(str == null)) {
+                Tile[] temp = board.getTilePlacement(str, t);
+                int score = board.getScore(temp);
+                words.add(temp);
+                scores.add(score);
+            }
         }
-        return new ArrayList<>();
+        Tile[] bestTiles = words.get(0);
+        int bestScore = scores.get(0);
+        for (int i = 1; i < words.size(); i++) {
+            if (scores.get(i) > bestScore) {
+                bestScore = scores.get(i);
+                bestTiles = words.get(i);
+            }
+        }
+        return bestTiles;
     }
 
     public static boolean acceptableForComputer(Board b, Tile t) {
