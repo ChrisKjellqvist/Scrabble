@@ -150,10 +150,40 @@ public class main {
             display.handToDisplay = home;
             currentHand = home;
             while (!turnisOver) {
+                //normal player hand functionality 
             }
+            currentHand.sort(); //this may not work
+            
+            if(bag.size() >= getCurrentWord().length){
+                for(int i = 0; i < getCurrentWord().length; i++){
+                    temp = (int)(Math.random()*(bag.size()-1));
+                    currentHand[i] = bag.get(temp);
+                    bag.remove(temp);
+                }
+            }
+            turnisOver = false;
             homeScore += board.getScore(display.tilesPlaced);
-
-
+            
+            if(board.isGameOver()) break;
+            
+            display.handToDisplay = away;
+            currentHand = away;
+            while(!turnisOver){
+                //normal AI functionality
+            }
+            currentHand.sort(); //this may not work
+            
+            if(bag.size() >= getCurrentWord().length){
+                for(int i = 0; i < getCurrentWord().length; i++){
+                    temp = (int)(Math.random()*(bag.size()-1));
+                    currentHand[i] = bag.get(temp);
+                    bag.remove(temp);
+                }
+            }
+            turnisOver = false;
+            awayScore += board.getScore(display.tilesPlaced);
+            if(board.isGameOver()) break;
+            
         }
     }
 
