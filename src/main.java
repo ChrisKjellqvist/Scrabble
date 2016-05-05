@@ -146,23 +146,29 @@ public class main {
         System.out.println(Dictionary.findBestWord(getHandsLetterDistribution(currentHand)));
         frame.setVisible(true);
 
+        Tile[] t;
         while (!board.isGameOver()) {
             display.handToDisplay = home;
             currentHand = home;
             while (!turnisOver) {
                 //normal player hand functionality 
             }
-            currentHand.sort(); //this may not work
-            
-            if(bag.size() >= getCurrentWord().length){
-                for(int i = 0; i < getCurrentWord().length; i++){
+            //not sure if it is necessary to sort
+            //@TODO fix removing tiles from hand
+            //might be easiest to do by converting hand from Tile[] to arraylist
+            //currentHand.sort(); //this may not work
+
+            if (bag.size() >= getCurrentWord().length()) {
+                for (int i = 0; i < getCurrentWord().length(); i++) {
                     temp = (int)(Math.random()*(bag.size()-1));
                     currentHand[i] = bag.get(temp);
                     bag.remove(temp);
                 }
             }
             turnisOver = false;
-            homeScore += board.getScore(display.tilesPlaced);
+            t = new Tile[display.tilesPlaced.size()];
+            display.tilesPlaced.toArray(t);
+            homeScore += board.getScore(t);
             
             if(board.isGameOver()) break;
             
@@ -171,17 +177,20 @@ public class main {
             while(!turnisOver){
                 //normal AI functionality
             }
-            currentHand.sort(); //this may not work
-            
-            if(bag.size() >= getCurrentWord().length){
-                for(int i = 0; i < getCurrentWord().length; i++){
+            //^^
+            //currentHand.sort(); //this may not work
+
+            if (bag.size() >= getCurrentWord().length()) {
+                for (int i = 0; i < getCurrentWord().length(); i++) {
                     temp = (int)(Math.random()*(bag.size()-1));
                     currentHand[i] = bag.get(temp);
                     bag.remove(temp);
                 }
             }
             turnisOver = false;
-            awayScore += board.getScore(display.tilesPlaced);
+            t = new Tile[display.tilesPlaced.size()];
+            display.tilesPlaced.toArray(t);
+            awayScore += board.getScore(t);
             if(board.isGameOver()) break;
             
         }
