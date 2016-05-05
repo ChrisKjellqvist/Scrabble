@@ -8,16 +8,20 @@ public class ComputerPlayer {
         ArrayList<Tile> possiblePlaces = new ArrayList<>();
         for (int i = 0; i < board.board.length; i++) {
             for (int j = 0; j < board.board[0].length; j++) {
-                if (acceptableForComputer(board, board.board[i][j])) {
-                    possiblePlaces.add(board.board[i][j]);
+                if (board.board[i][j].state == Tile.PLACED_TILE) {
+                    if (acceptableForComputer(board, board.board[i][j])) {
+                        possiblePlaces.add(board.board[i][j]);
+                    }
                 }
             }
         }
+        System.out.println(possiblePlaces.size());
         ArrayList<Tile[]> words = new ArrayList<>();
         ArrayList<Integer> scores = new ArrayList<>();
 
         for (Tile t : possiblePlaces) {
             String str = board.getBestWordPossible(hand, t);
+            System.out.println(str);
             if (!(str == null)) {
                 Tile[] temp = board.getTilePlacement(str, t);
                 int score = board.getScore(temp);
@@ -40,8 +44,12 @@ public class ComputerPlayer {
         int nonBlanks = 0;
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
-                if (b.board[t.coords[0] + i][t.coords[1] + j].state == Tile.PLACED_TILE) {
-                    nonBlanks++;
+                try {
+                    if (b.board[t.coords[0] + i][t.coords[1] + j].state == Tile.PLACED_TILE) {
+                        nonBlanks++;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+
                 }
             }
         }

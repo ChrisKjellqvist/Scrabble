@@ -147,50 +147,63 @@ public class main {
         frame.setVisible(true);
 
         Tile[] t;
+
+        boolean gameOverBool = false;
         while (!board.isGameOver()) {
             display.handToDisplay = home;
             currentHand = home;
+            long y = System.currentTimeMillis() + 1000;
             while (!turnisOver) {
-                //normal player hand functionality 
-            }
-            //not sure if it is necessary to sort
-            //@TODO fix removing tiles from hand
-            //might be easiest to do by converting hand from Tile[] to arraylist
-            //currentHand.sort(); //this may not work
+                if (System.currentTimeMillis() >= y) {
+                    y += 1000;
+                    System.out.println(y / 1000);
+                }
 
-            if (bag.size() >= getCurrentWord().length()) {
-                for (int i = 0; i < getCurrentWord().length(); i++) {
-                    temp = (int)(Math.random()*(bag.size()-1));
+            }
+            System.out.println("has been run");
+            turnisOver = false;
+            t = new Tile[display.tilesPlaced.size()];
+            display.tilesPlaced.toArray(t);
+            Tile[] newHand = new Tile[7];
+
+            for (int i = 0; i < currentHand.length; i++) {
+                if (!display.tilesPlaced.contains(currentHand[i])) {
+                    newHand[i] = currentHand[i];
+                } else if (bag.size() >= 1) {
+                    temp = (int) (Math.random() * (bag.size() - 1));
                     currentHand[i] = bag.get(temp);
                     bag.remove(temp);
                 }
             }
-            turnisOver = false;
-            t = new Tile[display.tilesPlaced.size()];
-            display.tilesPlaced.toArray(t);
+
             homeScore += board.getScore(t);
             
             if(board.isGameOver()) break;
-            
+
+            //////////////
+
             display.handToDisplay = away;
             currentHand = away;
-            while(!turnisOver){
-                //normal AI functionality
-            }
-            //^^
-            //currentHand.sort(); //this may not work
+            Tile[] CPMove = ComputerPlayer.getNextMove(board, currentHand);
+            display.paintMove(CPMove);
 
-            if (bag.size() >= getCurrentWord().length()) {
-                for (int i = 0; i < getCurrentWord().length(); i++) {
-                    temp = (int)(Math.random()*(bag.size()-1));
-                    currentHand[i] = bag.get(temp);
-                    bag.remove(temp);
-                }
-            }
-            turnisOver = false;
             t = new Tile[display.tilesPlaced.size()];
             display.tilesPlaced.toArray(t);
             awayScore += board.getScore(t);
+
+
+            for (int i = 0; i < currentHand.length; i++) {
+                if (!display.tilesPlaced.contains(currentHand[i])) {
+                    newHand[i] = currentHand[i];
+                } else {
+                    if (bag.size() >= 1) {
+                        temp = (int) (Math.random() * (bag.size() - 1));
+                        currentHand[i] = bag.get(temp);
+                        bag.remove(temp);
+                    }
+                }
+            }
+
             if(board.isGameOver()) break;
             
         }

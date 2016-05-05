@@ -119,14 +119,17 @@ public class Display extends JPanel {
         for (int i = 0; i < handToDisplay.length; i++) {
             if (!handToDisplay[i].placed) {
                 if (i != beingHeld) {
-                    g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i + 1) * squareSize, squareSize, squareSize, null);
+                    g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i + 1) * squareSize,
+                            squareSize, squareSize, null);
                 } else {
-                    if (p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder && p.y < topBorder + boardSize) {
+                    if (p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder
+                            && p.y < topBorder + boardSize) {
                         int x = (p.x - leftBorder) / squareSize;
                         int y = (p.y - topBorder) / squareSize;
                         g.drawImage(letters[handToDisplay[i].letter - 97], p.x, p.y, squareSize, squareSize, null);
                         for (int j = 1; j <= 2; j++) {
-                            g.drawRect(leftBorder + x * squareSize - j, topBorder + y * squareSize - j, squareSize + 2 * j, squareSize + 2 * j);
+                            g.drawRect(leftBorder + x * squareSize - j, topBorder + y * squareSize - j,
+                                    squareSize + 2 * j, squareSize + 2 * j);
                         }
                     } else {
                         g.drawImage(letters[handToDisplay[i].letter - 97], p.x, p.y, squareSize, squareSize, null);
@@ -134,6 +137,18 @@ public class Display extends JPanel {
                 }
             }
         }
+    }
+
+    public void paintMove(Tile[] t) {
+        for (Tile tile : t) {
+            paintTile(tile);
+        }
+    }
+
+    private void paintTile(Tile t) {
+        Graphics g = boardBuffer.getGraphics();
+        g.drawImage(letters[t.letter - 97], leftBorder + t.coords[0] * squareSize, topBorder + t.coords[1] * squareSize,
+                squareSize, squareSize, null);
     }
 
     boolean withinBoard(Point p) {
