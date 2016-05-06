@@ -161,20 +161,22 @@ public class Board {
             makeHorizontal = false;
             pivot = fixed.coords[1];
             constant = fixed.coords[0];
+            System.out.println("Spelling vertically");
         } else {
             makeHorizontal = true;
             pivot = fixed.coords[0];
             constant = fixed.coords[1];
+            System.out.println("Spelling horizontally");
         }
 
         for (int i = pivot - prefixLength; i < pivot; i++) {
             Tile temp = new Tile(word.charAt(index));
             if (makeHorizontal) {
-                temp.coords[0] = constant;
-                temp.coords[1] = i;
-            } else {
                 temp.coords[0] = i;
                 temp.coords[1] = constant;
+            } else {
+                temp.coords[0] = constant;
+                temp.coords[1] = i;
             }
             tilesForWord[index] = temp;
             index++;
@@ -184,11 +186,11 @@ public class Board {
         for (int i = pivot + 1; i < pivot + suffixLength; i++) {
             Tile temp = new Tile(word.charAt(index));
             if (makeHorizontal) {
-                temp.coords[0] = constant;
-                temp.coords[1] = i;
-            } else {
                 temp.coords[0] = i;
                 temp.coords[1] = constant;
+            } else {
+                temp.coords[0] = constant;
+                temp.coords[1] = i;
             }
             tilesForWord[index] = temp;
             index++;
@@ -298,13 +300,14 @@ public class Board {
     }
 
     void doMove(Tile[] tiles) {
+        int alignment = Board.findAlignment(tiles[0], tiles[1]);
         for (Tile t : tiles) {
             int x = t.coords[0];
             int y = t.coords[1];
             board[x][y] = t;
             board[x][y].state = Tile.PLACED_TILE;
             board[x][y].isFixed = true;
-            board[x][y].alignment = t.alignment;
+            board[x][y].alignment = alignment;
         }
     }
 
