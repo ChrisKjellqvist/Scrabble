@@ -161,12 +161,10 @@ public class Board {
             makeHorizontal = false;
             pivot = fixed.coords[1];
             constant = fixed.coords[0];
-            System.out.println("Spelling vertically");
         } else {
             makeHorizontal = true;
             pivot = fixed.coords[0];
             constant = fixed.coords[1];
-            System.out.println("Spelling horizontally");
         }
 
         for (int i = pivot - prefixLength; i < pivot; i++) {
