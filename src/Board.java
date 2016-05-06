@@ -75,46 +75,11 @@ public class Board {
     }
 
     /**
-     * Functions by checking that every tile pair is adjacently aligned in
-     * the same way as every other tile pair.
-     * @param list - a list of placed tiles for the current move
-     * @return Whether or not the tiles are placed in a line
-     */
-    boolean isValidMove(ArrayList<Tile> list) {
-        if (list.size() > 1) {
-            int alignment = findAlignment(list.get(0), list.get(1));
-            switch (alignment) {
-                case UNALIGNED:
-                    System.out.println("unaligned");
-                    break;
-                case HORIZONTAL_ALIGNMENT:
-                    System.out.println("horizontally aligned");
-                    break;
-                case VERTICAL_ALIGNMENT:
-                    System.out.println("vertically aligned");
-                    break;
-            }
-            if (alignment == UNALIGNED) {
-                return false;
-            }
-            for (int i = 1; i < list.size() - 1; i++) {
-                int newAlignment = findAlignment(list.get(i), list.get(i + 1));
-                if (newAlignment != alignment) {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * @param a arbitrary tile - needs to be the top/leftmost tile
      * @param b arbitrary tile - needs to be the bottom/rightmost tile
      * @return returns alignement based off of constants given above
      */
-    int findAlignment(Tile a, Tile b) {
+    static int findAlignment(Tile a, Tile b) {
         if (a.coords[0] == b.coords[0]) {
             if (a.coords[1] + 1 == b.coords[1]) {
                 return VERTICAL_ALIGNMENT;
@@ -130,6 +95,30 @@ public class Board {
         } else {
             return -1;
         }
+    }
+
+    /**
+     * Functions by checking that every tile pair is adjacently aligned in
+     * the same way as every other tile pair.
+     * @param list - a list of placed tiles for the current move
+     * @return Whether or not the tiles are placed in a line
+     */
+    boolean isValidMove(ArrayList<Tile> list) {
+        if (list.size() > 1) {
+            int alignment = findAlignment(list.get(0), list.get(1));
+            if (alignment == UNALIGNED) {
+                return false;
+            }
+            for (int i = 1; i < list.size() - 1; i++) {
+                int newAlignment = findAlignment(list.get(i), list.get(i + 1));
+                if (newAlignment != alignment) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 
     public String getBestWordPossible(Tile[] hand, Tile fixed) {
@@ -162,41 +151,47 @@ public class Board {
                 suffixLength++;
             }
         }
+
         int index = 0;
+        boolean makeHorizontal;
+        int pivot;
+        int constant;
+
         if (fixed.alignment == Board.HORIZONTAL_ALIGNMENT) {
-            for (int i = fixed.coords[1] - prefixLength; i < fixed.coords[1]; i++) {
-                Tile temp = new Tile(word.charAt(index));
-                temp.coords[0] = fixed.coords[0];
-                temp.coords[1] = i;
-                tilesForWord[index] = temp;
-                index++;
-            }
-            tilesForWord[index] = fixed;
-            index++;
-            for (int i = fixed.coords[1] + 1; i < fixed.coords[1] + suffixLength; i++) {
-                Tile temp = new Tile(word.charAt(index));
-                temp.coords[0] = fixed.coords[0];
-                temp.coords[1] = i;
-                tilesForWord[index] = temp;
-                index++;
-            }
+            makeHorizontal = false;
+            pivot = fixed.coords[1];
+            constant = fixed.coords[0];
         } else {
-            for (int i = fixed.coords[0] - prefixLength; i < fixed.coords[0]; i++) {
-                Tile temp = new Tile(word.charAt(index));
+            makeHorizontal = true;
+            pivot = fixed.coords[0];
+            constant = fixed.coords[1];
+        }
+
+        for (int i = pivot - prefixLength; i < pivot; i++) {
+            Tile temp = new Tile(word.charAt(index));
+            if (makeHorizontal) {
+                temp.coords[0] = constant;
+                temp.coords[1] = i;
+            } else {
                 temp.coords[0] = i;
-                temp.coords[1] = fixed.coords[1];
-                tilesForWord[index] = temp;
-                index++;
+                temp.coords[1] = constant;
             }
-            tilesForWord[index] = fixed;
+            tilesForWord[index] = temp;
             index++;
-            for (int i = fixed.coords[0] + 1; i < fixed.coords[0] + suffixLength; i++) {
-                Tile temp = new Tile(word.charAt(index));
+        }
+        tilesForWord[index] = fixed;
+        index++;
+        for (int i = pivot + 1; i < pivot + suffixLength; i++) {
+            Tile temp = new Tile(word.charAt(index));
+            if (makeHorizontal) {
+                temp.coords[0] = constant;
+                temp.coords[1] = i;
+            } else {
                 temp.coords[0] = i;
-                temp.coords[1] = fixed.coords[1];
-                tilesForWord[index] = temp;
-                index++;
+                temp.coords[1] = constant;
             }
+            tilesForWord[index] = temp;
+            index++;
         }
         return tilesForWord;
     }
@@ -311,5 +306,22 @@ public class Board {
             board[x][y].isFixed = true;
             board[x][y].alignment = t.alignment;
         }
+    }
+
+    ArrayList<Tile> getFixedTiles(Tile tile) {
+        ArrayList<Tile> list = new ArrayList<>();
+        for (int i = -1; i <= 1; i += 2) {
+            Tile c = board[tile.coords[0] + i][tile.coords[1]];
+            if (c.state == Tile.PLACED_TILE) {
+                list.add(c);
+            }
+        }
+        for (int i = -1; i <= 1; i += 2) {
+            Tile c = board[tile.coords[0]][tile.coords[1] + i];
+            if (c.state == Tile.PLACED_TILE) {
+                list.add(c);
+            }
+        }
+        return list;
     }
 }

@@ -15,7 +15,6 @@ public class ComputerPlayer {
                 }
             }
         }
-        System.out.println("poss: " + possiblePlaces.size());
         ArrayList<Tile[]> words = new ArrayList<>();
         ArrayList<Integer> scores = new ArrayList<>();
 

@@ -87,29 +87,12 @@ public class main {
                         display.handToDisplay[display.beingHeld].coords[1] = y;
                         display.handToDisplay[display.beingHeld].placed = true;
                         display.tilesPlaced.add(display.handToDisplay[display.beingHeld]);
-                        int alignment = Board.UNALIGNED;
-                        for (int i = -1; i < 2; i += 2) {
-                            try {
-                                Tile c = display.tilesPlaced.get(0);
-                                if (board.board[c.coords[0] + i][c.coords[1]].state == Tile.PLACED_TILE) {
-                                    if (!display.tilesPlaced.contains(board.board[c.coords[0] + i][c.coords[1]])) {
-                                        display.tilesPlaced.add(board.board[c.coords[0] + i][c.coords[1]]);
-                                    }
+                        for (int i = 0; i < display.tilesPlaced.size(); i++) {
+                            ArrayList<Tile> list = board.getFixedTiles(display.handToDisplay[display.beingHeld]);
+                            for (Tile t : list) {
+                                if (!display.tilesPlaced.contains(t)) {
+                                    display.tilesPlaced.add(t);
                                 }
-                            } catch (Exception exc) {
-
-                            }
-                        }
-                        for (int i = -1; i < 2; i += 2) {
-                            try {
-                                Tile c = display.tilesPlaced.get(0);
-                                if (board.board[c.coords[0]][c.coords[1] + i].state == Tile.PLACED_TILE) {
-                                    if (!display.tilesPlaced.contains(board.board[c.coords[0]][c.coords[1] + i])) {
-                                        display.tilesPlaced.add(board.board[c.coords[0]][c.coords[1] + 1]);
-                                    }
-                                }
-                            } catch (Exception exc) {
-
                             }
                         }
                     }
@@ -117,6 +100,7 @@ public class main {
                     time.stop();
                     display.repaint();
                     display.tilesPlaced.sort(new TileComparator<>());
+                    System.out.println(display.tilesPlaced);
 
                 }
             }
@@ -189,9 +173,6 @@ public class main {
             display.tilesPlaced.toArray(move);
             doTurn(move);
 
-            System.out.println("DOING HOME:");
-            System.out.println(Arrays.toString(move));
-
             homeScore += board.getScore(move);
             
             if(board.isGameOver()) break;
@@ -206,7 +187,6 @@ public class main {
 
             Tile[] CPMove = ComputerPlayer.getNextMove(board, currentHand);
             doTurn(CPMove);
-            System.out.println("DOING AWAY:");
             System.out.println(Arrays.toString(CPMove));
             awayScore += board.getScore(CPMove);
 

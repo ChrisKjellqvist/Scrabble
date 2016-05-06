@@ -15,7 +15,7 @@ public class TileComparator<T> implements Comparator {
                 return 1;
             }
         } else {
-            if (t1.coords[0] < t2.coords[1]) {
+            if (t1.coords[0] < t2.coords[0]) {
                 return -1;
             } else {
                 return 1;
