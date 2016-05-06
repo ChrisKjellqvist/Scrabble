@@ -4,9 +4,14 @@ import java.util.ArrayList;
  * Created by chris on 4/25/16.
  */
 public class Board {
+    public static final int UNALIGNED = -1;
+    public static final int HORIZONTAL_ALIGNMENT = 0;
+    public static final int VERTICAL_ALIGNMENT = 1;
     static Tile[][] referenceBoard;
     public int squareSize = 1;
     Tile[][] board = new Tile[15][15];
+
+
     public Board() {
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
@@ -78,7 +83,18 @@ public class Board {
     boolean isValidMove(ArrayList<Tile> list) {
         if (list.size() > 1) {
             int alignment = findAlignment(list.get(0), list.get(1));
-            if (alignment == -1) {
+            switch (alignment) {
+                case UNALIGNED:
+                    System.out.println("unaligned");
+                    break;
+                case HORIZONTAL_ALIGNMENT:
+                    System.out.println("horizontally aligned");
+                    break;
+                case VERTICAL_ALIGNMENT:
+                    System.out.println("vertically aligned");
+                    break;
+            }
+            if (alignment == UNALIGNED) {
                 return false;
             }
             for (int i = 1; i < list.size() - 1; i++) {
@@ -96,20 +112,20 @@ public class Board {
     /**
      * @param a arbitrary tile - needs to be the top/leftmost tile
      * @param b arbitrary tile - needs to be the bottom/rightmost tile
-     * @return -1 if not aligned, 0 if horizontally aligned, 1 if vertically aligned
+     * @return returns alignement based off of constants given above
      */
     int findAlignment(Tile a, Tile b) {
         if (a.coords[0] == b.coords[0]) {
             if (a.coords[1] + 1 == b.coords[1]) {
-                return 1;
+                return VERTICAL_ALIGNMENT;
             } else {
-                return -1;
+                return UNALIGNED;
             }
         } else if (a.coords[1] == b.coords[1]) {
-            if (a.coords[1] + 1 == b.coords[1]) {
-                return 0;
+            if (a.coords[0] + 1 == b.coords[0]) {
+                return HORIZONTAL_ALIGNMENT;
             } else {
-                return -1;
+                return UNALIGNED;
             }
         } else {
             return -1;
@@ -121,7 +137,6 @@ public class Board {
         byte[] dist = Dictionary.getLetterDistribution(hand);
         dist[fixed.letter - 97]++;
         String bestWord = Dictionary.findBestWordContaining(dist, fixed.letter, blacklist);
-
         while (!fitsAtLetter(getTilePlacement(bestWord, fixed))) {
             blacklist.add(bestWord);
             bestWord = Dictionary.findBestWordContaining(dist, fixed.letter, blacklist);
@@ -129,6 +144,7 @@ public class Board {
                 return null;
             }
         }
+        System.out.println(bestWord);
         return bestWord;
     }
 
@@ -136,9 +152,9 @@ public class Board {
         Tile[] tilesForWord = new Tile[word.length()];
         boolean q = true;
         int prefixLength = 0;
-        int suffixLength = 0;
+        int suffixLength = 1;
         for (int i = 0; i < word.length(); i++) {
-            if (fixed.letter == word.charAt(i)) {
+            if (fixed.letter == word.charAt(i) && q) {
                 q = false;
             } else if (q) {
                 prefixLength++;
@@ -147,7 +163,7 @@ public class Board {
             }
         }
         int index = 0;
-        if (fixed.spelledHorizontally) {
+        if (fixed.alignment == Board.HORIZONTAL_ALIGNMENT) {
             for (int i = fixed.coords[1] - prefixLength; i < fixed.coords[1]; i++) {
                 Tile temp = new Tile(word.charAt(index));
                 temp.coords[0] = fixed.coords[0];
@@ -191,7 +207,7 @@ public class Board {
         int suffixLength = 0;
         Tile t = new Tile(0);
         for (int i = 0; i < tiles.length; i++) {
-            if (tiles[i].isFixed) {
+            if (tiles[i].isFixed && temp) {
                 t = tiles[i];
                 temp = false;
             } else if (temp) {
@@ -200,7 +216,7 @@ public class Board {
                 suffixLength++;
             }
         }
-        if (t.spelledHorizontally) {
+        if (t.alignment == Board.HORIZONTAL_ALIGNMENT) {
             for (int i = t.coords[1] - prefixLength; i < t.coords[1]; i++) {
                 try {
                     if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
@@ -286,4 +302,14 @@ public class Board {
         return score * wordMultiplier;
     }
 
+    void doMove(Tile[] tiles) {
+        for (Tile t : tiles) {
+            int x = t.coords[0];
+            int y = t.coords[1];
+            board[x][y] = t;
+            board[x][y].state = Tile.PLACED_TILE;
+            board[x][y].isFixed = true;
+            board[x][y].alignment = t.alignment;
+        }
+    }
 }

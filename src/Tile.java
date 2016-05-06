@@ -36,8 +36,8 @@ public class Tile {
 
     public boolean isFixed = false;
     public int[] coords = new int[2];
-    public boolean spelledHorizontally = false;
 
+    public int alignment = Board.UNALIGNED;
 
     public Tile(int state){
         this.state = state;
@@ -50,7 +50,7 @@ public class Tile {
 
     @Override
     public String toString() {
-        return coords[0] + " " + coords[1];
+        return "(" + coords[0] + ", " + coords[1] + ", <" + letter + ">)";
     }
 
     @Override

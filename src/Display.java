@@ -146,8 +146,7 @@ public class Display extends JPanel {
     }
 
     private void paintTile(Tile t) {
-        Graphics g = boardBuffer.getGraphics();
-        g.drawImage(letters[t.letter - 97], leftBorder + t.coords[0] * squareSize, topBorder + t.coords[1] * squareSize,
+        boardBuffer.createGraphics().drawImage(letters[t.letter - 97], t.coords[0] * squareSize, t.coords[1] * squareSize,
                 squareSize, squareSize, null);
     }
 

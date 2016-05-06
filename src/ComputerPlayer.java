@@ -15,13 +15,12 @@ public class ComputerPlayer {
                 }
             }
         }
-        System.out.println(possiblePlaces.size());
+        System.out.println("poss: " + possiblePlaces.size());
         ArrayList<Tile[]> words = new ArrayList<>();
         ArrayList<Integer> scores = new ArrayList<>();
 
         for (Tile t : possiblePlaces) {
             String str = board.getBestWordPossible(hand, t);
-            System.out.println(str);
             if (!(str == null)) {
                 Tile[] temp = board.getTilePlacement(str, t);
                 int score = board.getScore(temp);

@@ -58,7 +58,6 @@ public class Dictionary {
     public static String findBestWord(byte[] distribution) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
-        System.out.println(Arrays.toString(distribution));
         for (int i = 0; i < dictionary.length; i++) {
             if (isCompatible(distribution, letterDistributions[i])) {
                 possibleWords.add(dictionary[i]);
@@ -81,10 +80,11 @@ public class Dictionary {
     public static String findBestWordContaining(byte[] distribution, char c, ArrayList<String> blacklist) {
         ArrayList<String> possibleWords = new ArrayList<String>();
         ArrayList<Integer> scores = new ArrayList<Integer>();
-        System.out.println(Arrays.toString(distribution));
         for (int i = 0; i < dictionary.length; i++) {
             if (isCompatible(distribution, letterDistributions[i])) {
-                possibleWords.add(dictionary[i]);
+                if (arContainsChar(dictionary[i].toCharArray(), c)) {
+                    possibleWords.add(dictionary[i]);
+                }
             }
         }
 
@@ -105,16 +105,11 @@ public class Dictionary {
                 maxIndex = i;
             }
         }
-        if (arContainsChar(possibleWords.get(maxIndex).toCharArray(), c)) {
+        try {
             return possibleWords.get(maxIndex);
-        } else {
-            for (int i = 0; i < possibleWords.size(); i++) {
-                if (arContainsChar(possibleWords.get(i).toCharArray(), c)) {
-                    return possibleWords.get(i);
-                }
-            }
+        } catch (IndexOutOfBoundsException e) {
+            return null;
         }
-        return null;
     }
 
     public static int getScore(String str) {
