@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 /**
- * Created by chris on 4/25/16.
+ * Created by chris and seth on 4/25/16.
  */
 public class Board {
     public static final int UNALIGNED = -1;
@@ -71,7 +71,14 @@ public class Board {
         board[3][7] = new Tile(2);
         board[11][7] = new Tile(2);
         board[7][11] = new Tile(2);
-        referenceBoard = board.clone();
+
+        referenceBoard = new Tile[15][15];
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                referenceBoard[i][j] = new Tile(0);
+                referenceBoard[i][j].state = board[i][j].state;
+            }
+        }
     }
 
     /**
@@ -97,9 +104,14 @@ public class Board {
         }
     }
 
+    private static int getReferenceState(Tile t) {
+        return referenceBoard[t.coords[0]][t.coords[1]].state;
+    }
+
     /**
      * Functions by checking that every tile pair is adjacently aligned in
      * the same way as every other tile pair.
+     *
      * @param list - a list of placed tiles for the current move
      * @return Whether or not the tiles are placed in a line
      */
@@ -196,6 +208,16 @@ public class Board {
     }
 
     public boolean fitsAtLetter(Tile[] tiles) {
+        for (int i = 0; i < tiles.length; i++) {
+            try {
+                if (board[tiles[i].coords[0]][tiles[i].coords[1]].state == Tile.PLACED_TILE && !tiles[i].isFixed) {
+                    return false;
+                }
+            } catch (ArrayIndexOutOfBoundsException exc) {
+                return false;
+            }
+        }
+
         boolean temp = true;
         int prefixLength = 0;
         int suffixLength = 0;
@@ -230,7 +252,7 @@ public class Board {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    if (constant >= 15 || pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
+                    if (constant >= 15 || pivot - prefixLength < 0 || pivot + suffixLength >= 15) {
                         return false;
                     }
                 }
@@ -254,13 +276,13 @@ public class Board {
         for (int i = pivot - prefixLength; i < pivot; i++) {
             try {
                 if (alignment == HORIZONTAL_ALIGNMENT) {
-                    for (int j = -1; j <= 1; j++) {
+                    for (int j = -1; j <= 1; j += 2) {
                         if (board[constant + j][i].state == Tile.PLACED_TILE) {
                             return false;
                         }
                     }
                 } else {
-                    for (int j = -1; j <= 1; j++) {
+                    for (int j = -1; j <= 1; j += 2) {
                         if (board[i][constant + j].state == Tile.PLACED_TILE) {
                             return false;
                         }
@@ -284,42 +306,41 @@ public class Board {
     public int getScore(Tile[] list) {
         int score = 0;
         int wordMultiplier = 1;
-        for (Tile t : list) {
-            if (t.isFixed) {
-                score += Dictionary.getLetterScore(t.letter);
-            } else {
-                for (int i = 0; i < list.length; i++) {
-                    try {
-                        int[] tempCoords = list[i].coords.clone();
-                        Tile tileTemp = referenceBoard[tempCoords[0]][tempCoords[1]];
-                        switch (tileTemp.state) {
-                            case Tile.DL:
-                                score += Dictionary.getLetterScore(t.letter) * 2;
-                                break;
-                            case Tile.DW:
-                                score += Dictionary.getLetterScore(t.letter);
-                                wordMultiplier *= 2;
-                                break;
-                            case Tile.BLANK:
-                                score += Dictionary.getLetterScore(t.letter);
-                                break;
-                            case Tile.STAR:
-                                wordMultiplier *= 2;
-                                score += Dictionary.getLetterScore(t.letter);
-                                break;
-                            case Tile.TL:
-                                score += Dictionary.getLetterScore(t.letter) * 3;
-                                break;
-                            case Tile.TW:
-                                score += Dictionary.getLetterScore(t.letter);
-                                wordMultiplier *= 3;
-                                break;
-                        }
-                    } catch (ArrayIndexOutOfBoundsException e) {
-
-                    }
+        int len = 0;
+        for (int i = 0; i < list.length; i++) {
+            Tile t = list[i];
+            if (!t.isFixed) {
+                len++;
+                switch (getReferenceState(t)) {
+                    case Tile.DL:
+                        score += Dictionary.getLetterScore(t.letter) * 2;
+                        break;
+                    case Tile.DW:
+                        score += Dictionary.getLetterScore(t.letter);
+                        wordMultiplier *= 2;
+                        break;
+                    case Tile.STAR:
+                        wordMultiplier *= 2;
+                        score += Dictionary.getLetterScore(t.letter);
+                        break;
+                    case Tile.TL:
+                        score += Dictionary.getLetterScore(t.letter) * 3;
+                        break;
+                    case Tile.TW:
+                        score += Dictionary.getLetterScore(t.letter);
+                        wordMultiplier *= 3;
+                        break;
+                    default:
+                        score += Dictionary.getLetterScore(t.letter);
+                        break;
                 }
+            } else {
+                score += Dictionary.getLetterScore(t.letter);
+
             }
+        }
+        if (len == 7) {
+            score += 50;
         }
         return score * wordMultiplier;
     }

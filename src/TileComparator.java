@@ -1,7 +1,7 @@
 import java.util.Comparator;
 
 /**
- * Created by chris on 4/26/16.
+ * Created by chris and seth on 4/26/16.
  */
 public class TileComparator<T> implements Comparator {
     @Override

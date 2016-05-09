@@ -4,10 +4,9 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
- * Created by chris on 4/23/16.
+ * Created by chris and seth on 4/23/16.
  */
 public class main {
 
@@ -25,14 +24,14 @@ public class main {
     static boolean turnisOver = false;
     static boolean firstTurn = true;
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         JFrame frame = new JFrame("Scrabble");
         makeBag();
         Dictionary dictionary = new Dictionary(new File("resources/ospd.txt"));
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
         display = new Display(board);
         frame.add(display);
-        Timer time = new Timer(1000 / 60, new ActionListener() {
+        Timer time = new Timer(1000 / 30, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 display.repaint();
@@ -107,7 +106,6 @@ public class main {
                     time.stop();
                     display.repaint();
                     display.tilesPlaced.sort(new TileComparator<>());
-                    System.out.println(display.tilesPlaced);
 
                 }
             }
@@ -148,11 +146,11 @@ public class main {
 
         int temp;
         for (int i = 0; i < 7; i++) {
-            temp = (int)(Math.random()*(bag.size()-1));
+            temp = (int) (Math.random() * (bag.size() - 1));
             home[i] = bag.get(temp);
             bag.remove(temp);
 
-            temp = (int)(Math.random()*(bag.size()-1));
+            temp = (int) (Math.random() * (bag.size() - 1));
             away[i] = bag.get(temp);
             bag.remove(temp);
 
@@ -166,39 +164,40 @@ public class main {
 
         while (!board.isGameOver()) {
             currentHand = home;
-            long y = t1 + 1000;
+            long y = t1 + 15000;
             while (!turnisOver) {
                 if (System.currentTimeMillis() >= y) {
-                    y += 1000;
+                    y += 15000;
                     System.out.print(" ");
                 }
             }
             turnisOver = false;
-            System.out.println();
-            System.out.println((y - t1) / 1000);
             Tile[] move = new Tile[display.tilesPlaced.size()];
             display.tilesPlaced.toArray(move);
+            homeScore += board.getScore(move);
             doTurn(move);
 
-            homeScore += board.getScore(move);
-            
-            if(board.isGameOver()) break;
+            display.homeScore = homeScore;
+            display.repaint();
+
+            if (board.isGameOver()) break;
 
             /**
              *
              *  SWITCHING SIDES
              *
              */
-
+            display.repaint();
             currentHand = away;
 
             Tile[] CPMove = ComputerPlayer.getNextMove(board, currentHand);
-            doTurn(CPMove);
-            System.out.println(Arrays.toString(CPMove));
             awayScore += board.getScore(CPMove);
+            doTurn(CPMove);
+            display.awayScore = awayScore;
+            display.repaint();
 
-            if(board.isGameOver()) break;
-            
+            if (board.isGameOver()) break;
+
         }
     }
 

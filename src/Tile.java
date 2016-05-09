@@ -1,5 +1,5 @@
 /**
- * Created by chris on 4/23/16.
+ * Created by chris and seth on 4/23/16.
  */
 public class Tile {
     /**
@@ -50,7 +50,7 @@ public class Tile {
 
     @Override
     public String toString() {
-        return "(" + coords[0] + ", " + coords[1] + ", <" + letter + ">)";
+        return "" + state;
     }
 
     @Override

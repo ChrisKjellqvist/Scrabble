@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by chris on 4/23/16.
+ * Created by chris and seth on 4/23/16.
  */
 public class Display extends JPanel {
     private static Image star;
@@ -25,6 +25,9 @@ public class Display extends JPanel {
     public int beingHeld = -1;
     public Point mousePoint;
     public Tile[] handToDisplay;
+
+    public int homeScore = 0;
+    public int awayScore = 0;
 
     Board board;
     BufferedImage boardBuffer;
@@ -137,6 +140,9 @@ public class Display extends JPanel {
                 }
             }
         }
+        g.setColor(Color.black);
+        g.drawString("Home: " + homeScore, 15, (int) (screenSize.height * .7));
+        g.drawString("Away: " + awayScore, 15, (int) (screenSize.height * .7 - 30));
     }
 
     public void paintMove(Tile[] t) {

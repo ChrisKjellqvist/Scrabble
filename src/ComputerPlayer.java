@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 /**
- * Created by chris on 5/2/16.
+ * Created by chris and seth on 5/2/16.
  */
 public class ComputerPlayer {
     public static Tile[] getNextMove(Board board, Tile[] hand) {

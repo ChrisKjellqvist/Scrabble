@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by chris on 4/26/16.
+ * Created by chris and seth on 4/26/16.
  */
 public class Dictionary {
     private static final byte[] defaultArray = new byte[26];
