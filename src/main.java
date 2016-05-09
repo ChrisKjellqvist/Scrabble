@@ -23,6 +23,7 @@ public class main {
     static int awayScore = 0;
 
     static boolean turnisOver = false;
+    static boolean firstTurn = true;
 
     public static void main(String[] args) throws IOException{
         JFrame frame = new JFrame("Scrabble");
@@ -86,12 +87,18 @@ public class main {
                         display.handToDisplay[display.beingHeld].coords[0] = x;
                         display.handToDisplay[display.beingHeld].coords[1] = y;
                         display.handToDisplay[display.beingHeld].placed = true;
-                        display.tilesPlaced.add(display.handToDisplay[display.beingHeld]);
-                        for (int i = 0; i < display.tilesPlaced.size(); i++) {
-                            ArrayList<Tile> list = board.getFixedTiles(display.handToDisplay[display.beingHeld]);
-                            for (Tile t : list) {
-                                if (!display.tilesPlaced.contains(t)) {
-                                    display.tilesPlaced.add(t);
+
+                        display.tilesPlaced.clear();
+
+                        for (int i = 0; i < display.handToDisplay.length; i++) {
+                            Tile temp = display.handToDisplay[i];
+                            if (temp.placed) {
+                                display.tilesPlaced.add(temp);
+                                ArrayList<Tile> list = board.getFixedTiles(temp);
+                                for (Tile t : list) {
+                                    if (!display.tilesPlaced.contains(t)) {
+                                        display.tilesPlaced.add(t);
+                                    }
                                 }
                             }
                         }
@@ -139,7 +146,6 @@ public class main {
             }
         });
 
-
         int temp;
         for (int i = 0; i < 7; i++) {
             temp = (int)(Math.random()*(bag.size()-1));
@@ -157,6 +163,7 @@ public class main {
         frame.setVisible(true);
 
         long t1 = System.currentTimeMillis();
+
         while (!board.isGameOver()) {
             currentHand = home;
             long y = t1 + 1000;
@@ -166,9 +173,9 @@ public class main {
                     System.out.print(" ");
                 }
             }
+            turnisOver = false;
             System.out.println();
             System.out.println((y - t1) / 1000);
-            turnisOver = false;
             Tile[] move = new Tile[display.tilesPlaced.size()];
             display.tilesPlaced.toArray(move);
             doTurn(move);

@@ -133,7 +133,6 @@ public class Board {
                 return null;
             }
         }
-        System.out.println(bestWord);
         return bestWord;
     }
 
@@ -211,45 +210,69 @@ public class Board {
                 suffixLength++;
             }
         }
-        if (t.alignment == Board.HORIZONTAL_ALIGNMENT) {
-            for (int i = t.coords[1] - prefixLength; i < t.coords[1]; i++) {
-                try {
-                    if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
-                        return false;
-                    }
-                } catch (ArrayIndexOutOfBoundsException exc) {
-                    return false;
-                }
-            }
-            for (int i = t.coords[1] + 1; i < t.coords[1] + suffixLength; i++) {
-                try {
-                    if (board[t.coords[0] + 1][i].state != Tile.BLANK || board[i][t.coords[1] - 1].state != Tile.BLANK) {
-                        return false;
-                    }
-                } catch (ArrayIndexOutOfBoundsException exc) {
-                    return false;
-                }
-            }
+        int alignment = Board.findAlignment(tiles[0], tiles[1]);
+        int constant;
+        int pivot;
+        if (alignment == Board.HORIZONTAL_ALIGNMENT) {
+            constant = t.coords[1];
+            pivot = t.coords[0];
         } else {
-            for (int i = t.coords[0] - prefixLength; i < t.coords[0]; i++) {
+            constant = t.coords[0];
+            pivot = t.coords[1];
+        }
+        switch (alignment) {
+            case Board.HORIZONTAL_ALIGNMENT:
                 try {
-                    if (board[i][t.coords[1] + 1].state != Tile.BLANK || board[t.coords[0] - 1][i].state != Tile.BLANK) {
+                    if (board[constant][pivot - prefixLength - 1].state == Tile.PLACED_TILE) {
                         return false;
                     }
-                } catch (ArrayIndexOutOfBoundsException exc) {
-                    return false;
+                    if (board[constant][pivot + suffixLength + 1].state == Tile.PLACED_TILE) {
+                        return false;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    if (constant >= 15 || pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
+                        return false;
+                    }
                 }
-            }
-            for (int i = t.coords[0] + 1; i < t.coords[0] + suffixLength; i++) {
+                break;
+            case Board.VERTICAL_ALIGNMENT:
                 try {
-                    if (board[i][t.coords[1] + 1].state != Tile.BLANK || board[t.coords[0] - 1][i].state != Tile.BLANK) {
+                    if (board[pivot - prefixLength - 1][constant].state == Tile.PLACED_TILE) {
                         return false;
                     }
-                } catch (ArrayIndexOutOfBoundsException exc) {
+                    if (board[pivot + suffixLength + 1][constant].state == Tile.PLACED_TILE) {
+                        return false;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    if (constant >= 15 || pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
+                        return false;
+                    }
+                }
+                break;
+        }
+
+        for (int i = pivot - prefixLength; i < pivot; i++) {
+            try {
+                if (alignment == HORIZONTAL_ALIGNMENT) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (board[constant + j][i].state == Tile.PLACED_TILE) {
+                            return false;
+                        }
+                    }
+                } else {
+                    for (int j = -1; j <= 1; j++) {
+                        if (board[i][constant + j].state == Tile.PLACED_TILE) {
+                            return false;
+                        }
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                if (constant >= 15 || pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
                     return false;
                 }
             }
         }
+
         return true;
     }
 
@@ -266,30 +289,34 @@ public class Board {
                 score += Dictionary.getLetterScore(t.letter);
             } else {
                 for (int i = 0; i < list.length; i++) {
-                    int[] tempCoords = list[i].coords.clone();
-                    Tile tileTemp = referenceBoard[tempCoords[0]][tempCoords[1]];
-                    switch (tileTemp.state) {
-                        case Tile.DL:
-                            score += Dictionary.getLetterScore(t.letter) * 2;
-                            break;
-                        case Tile.DW:
-                            score += Dictionary.getLetterScore(t.letter);
-                            wordMultiplier *= 2;
-                            break;
-                        case Tile.BLANK:
-                            score += Dictionary.getLetterScore(t.letter);
-                            break;
-                        case Tile.STAR:
-                            wordMultiplier *= 2;
-                            score += Dictionary.getLetterScore(t.letter);
-                            break;
-                        case Tile.TL:
-                            score += Dictionary.getLetterScore(t.letter) * 3;
-                            break;
-                        case Tile.TW:
-                            score += Dictionary.getLetterScore(t.letter);
-                            wordMultiplier *= 3;
-                            break;
+                    try {
+                        int[] tempCoords = list[i].coords.clone();
+                        Tile tileTemp = referenceBoard[tempCoords[0]][tempCoords[1]];
+                        switch (tileTemp.state) {
+                            case Tile.DL:
+                                score += Dictionary.getLetterScore(t.letter) * 2;
+                                break;
+                            case Tile.DW:
+                                score += Dictionary.getLetterScore(t.letter);
+                                wordMultiplier *= 2;
+                                break;
+                            case Tile.BLANK:
+                                score += Dictionary.getLetterScore(t.letter);
+                                break;
+                            case Tile.STAR:
+                                wordMultiplier *= 2;
+                                score += Dictionary.getLetterScore(t.letter);
+                                break;
+                            case Tile.TL:
+                                score += Dictionary.getLetterScore(t.letter) * 3;
+                                break;
+                            case Tile.TW:
+                                score += Dictionary.getLetterScore(t.letter);
+                                wordMultiplier *= 3;
+                                break;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+
                     }
                 }
             }
@@ -312,15 +339,23 @@ public class Board {
     ArrayList<Tile> getFixedTiles(Tile tile) {
         ArrayList<Tile> list = new ArrayList<>();
         for (int i = -1; i <= 1; i += 2) {
-            Tile c = board[tile.coords[0] + i][tile.coords[1]];
-            if (c.state == Tile.PLACED_TILE) {
-                list.add(c);
+            try {
+                Tile c = board[tile.coords[0] + i][tile.coords[1]];
+                if (c.state == Tile.PLACED_TILE) {
+                    list.add(c);
+                }
+            } catch (ArrayIndexOutOfBoundsException exc) {
+
             }
         }
         for (int i = -1; i <= 1; i += 2) {
-            Tile c = board[tile.coords[0]][tile.coords[1] + i];
-            if (c.state == Tile.PLACED_TILE) {
-                list.add(c);
+            try {
+                Tile c = board[tile.coords[0]][tile.coords[1] + i];
+                if (c.state == Tile.PLACED_TILE) {
+                    list.add(c);
+                }
+            } catch (ArrayIndexOutOfBoundsException exc) {
+
             }
         }
         return list;
