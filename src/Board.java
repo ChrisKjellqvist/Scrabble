@@ -1,18 +1,40 @@
 import java.util.ArrayList;
 
 /**
- * Created by chris and seth on 4/25/16.
+ * Created by Chris Kjellqvist and Seth Dalton on 4/25/16.
+ * This is the board object. It stores the tiles, gets the validity of moves,
+ * and runs general game functions.
  */
 public class Board {
+    /**
+     * Orientation constants
+     * Indicate whether a tile is spelling a word vertically, horizontally, or with no orientation
+     */
     public static final int UNALIGNED = -1;
     public static final int HORIZONTAL_ALIGNMENT = 0;
     public static final int VERTICAL_ALIGNMENT = 1;
+
+    /**
+     * Used so that special value tiles can be seen after they have had tiles placed on them.
+     */
     static Tile[][] referenceBoard;
+
+    /**
+     * 1 is just a default value so it compiles. Refer to Display for its usage
+     */
     public int squareSize = 1;
+
+    /**
+     * The actual playing board.
+     */
     Tile[][] board = new Tile[15][15];
 
 
     public Board() {
+        /**
+         * This initializes the board to be the official scrabble board. A lot had to
+         * be hard coded but that's just the way it had to be.
+         */
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 board[i][j] = new Tile(0);
@@ -72,6 +94,9 @@ public class Board {
         board[11][7] = new Tile(2);
         board[7][11] = new Tile(2);
 
+        /**
+         * Giving values to reference board.
+         */
         referenceBoard = new Tile[15][15];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
@@ -82,6 +107,9 @@ public class Board {
     }
 
     /**
+     * Gets orientation of two tiles in relation to each other by seeing if their x and y
+     * coordinates are the same or neither.
+     *
      * @param a arbitrary tile - needs to be the top/leftmost tile
      * @param b arbitrary tile - needs to be the bottom/rightmost tile
      * @return returns alignement based off of constants given above
@@ -100,10 +128,14 @@ public class Board {
                 return UNALIGNED;
             }
         } else {
-            return -1;
+            return UNALIGNED;
         }
     }
 
+    /**
+     * @param t - Arbitrary tile that is part of the game board
+     * @return - state of the board. Refer to Tile class for values
+     */
     private static int getReferenceState(Tile t) {
         return referenceBoard[t.coords[0]][t.coords[1]].state;
     }
@@ -133,6 +165,13 @@ public class Board {
         return true;
     }
 
+    /**
+     * Finds the best value word given a certain hand and a fixed tile that fits at the fixed tile.
+     *
+     * @param hand - Hand that is currently being considered.
+     * @param fixed - Fixed tile that must be included in the word.
+     * @return - Best word possible with the given hand and fixed tile
+     */
     public String getBestWordPossible(Tile[] hand, Tile fixed) {
         ArrayList<String> blacklist = new ArrayList<>();
         byte[] dist = Dictionary.getLetterDistribution(hand);
@@ -148,6 +187,12 @@ public class Board {
         return bestWord;
     }
 
+    /**
+     * Places letter tiles around a fixed tile, putting them in an ordered array.
+     * @param word - word that is being spelled
+     * @param fixed - fixed letter
+     * @return - Tile placement of the word
+     */
     public Tile[] getTilePlacement(String word, Tile fixed) {
         Tile[] tilesForWord = new Tile[word.length()];
         boolean q = true;
@@ -211,15 +256,20 @@ public class Board {
         for (int i = 0; i < tiles.length; i++) {
             try {
                 if (board[tiles[i].coords[0]][tiles[i].coords[1]].state == Tile.PLACED_TILE && !tiles[i].isFixed) {
+                    //Will be true when placed tiles will be on top of already placed letters.
                     return false;
                 }
             } catch (ArrayIndexOutOfBoundsException exc) {
+                //Will only be called if placed tiles are going to be outside of board.
                 return false;
             }
         }
 
+        //Used to tell whether or not you are incrementing the suffix or prefix lengths.
         boolean temp = true;
+        //Letters before the fixed letter.
         int prefixLength = 0;
+        //Letters after the fixed letter.
         int suffixLength = 0;
         Tile t = new Tile(0);
         for (int i = 0; i < tiles.length; i++) {
@@ -233,6 +283,17 @@ public class Board {
             }
         }
         int alignment = Board.findAlignment(tiles[0], tiles[1]);
+
+        /**
+         * With a given word, you will either be spelling it horizontally or vertically.
+         * If the fixed tile is already part of a vertically spelled word, you have to
+         * be spelling it horizontally. Thus, depending on the alignment, you will be
+         * keeping the x or y value for the tiles constant and have one axis that you are
+         * going across.
+         *
+         * This particular piece of code checks that it doesn't have any connecting tiles
+         * before or after the word, or to the sides of the word.
+         */
         int constant;
         int pivot;
         if (alignment == Board.HORIZONTAL_ALIGNMENT) {
@@ -242,7 +303,9 @@ public class Board {
             constant = t.coords[0];
             pivot = t.coords[1];
         }
+
         switch (alignment) {
+            //Are there tiles before or after the word being spelled?
             case Board.HORIZONTAL_ALIGNMENT:
                 try {
                     if (board[constant][pivot - prefixLength - 1].state == Tile.PLACED_TILE) {
@@ -252,7 +315,8 @@ public class Board {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    if (constant >= 15 || pivot - prefixLength < 0 || pivot + suffixLength >= 15) {
+                    //Should have already been accounted for but JUST IN CASE
+                    if (pivot - prefixLength < 0 || pivot + suffixLength >= 15) {
                         return false;
                     }
                 }
@@ -266,12 +330,22 @@ public class Board {
                         return false;
                     }
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    if (constant >= 15 || pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
+                    if (pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
                         return false;
                     }
                 }
                 break;
         }
+
+        /**
+         * Since spelling words parallel to other words is seriously hard to figure out
+         * with our given architecture, we're choosing not to do it.
+         *
+         * You always end up playing words like en, ah, and ow with it anyway and that's
+         * boring and in our opinion detracts from the spirit of the game.
+         *
+         * So as a result, we're checking that there are no tiles placed parallel.
+         */
 
         for (int i = pivot - prefixLength; i < pivot; i++) {
             try {
@@ -289,20 +363,20 @@ public class Board {
                     }
                 }
             } catch (ArrayIndexOutOfBoundsException e) {
-                if (constant >= 15 || pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
-                    return false;
-                }
+                //This will be called if constant + j is outside of the board but this
+                //is a corner case, and since words can be spelled on the sides,
+                //there should be nothing done about it.
             }
         }
 
         return true;
     }
 
-    //@TODO fix this
-    public boolean isGameOver() {
-        return false;
-    }
-
+    /**
+     * With a given list of placed tiles, get the score that they yield.
+     * @param list - placed tiles with coordinates
+     * @return - integer score
+     */
     public int getScore(Tile[] list) {
         int score = 0;
         int wordMultiplier = 1;
@@ -345,6 +419,10 @@ public class Board {
         return score * wordMultiplier;
     }
 
+    /**
+     * Modifies the board with the newly placed tiles.
+     * @param tiles - tiles to place
+     */
     void doMove(Tile[] tiles) {
         int alignment = Board.findAlignment(tiles[0], tiles[1]);
         for (Tile t : tiles) {
@@ -357,6 +435,22 @@ public class Board {
         }
     }
 
+    /**
+     * Checks the area around a tile and gets the number of fixed tiles
+     * surrounding it.
+     *
+     * So if you are checking this situation
+     *
+     *  _ _ _
+     *  A S K
+     *  _ O _
+     *
+     *  and you call this method on S, it will return the 4 surrounding tiles.
+     *
+     *
+     * @param tile
+     * @return - array
+     */
     ArrayList<Tile> getFixedTiles(Tile tile) {
         ArrayList<Tile> list = new ArrayList<>();
         for (int i = -1; i <= 1; i += 2) {
