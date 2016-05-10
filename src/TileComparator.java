@@ -2,8 +2,12 @@ import java.util.Comparator;
 
 /**
  * Created by chris and seth on 4/26/16.
+ * This is the class that defines what it means to compare two Tiles.
  */
 public class TileComparator<T> implements Comparator {
+    
+    //Takes two tiles, and if the first tile's coordinates are less than the second's it returns a negative number.
+    //If the second tile's coordinates are less, then it returns a positive number.
     @Override
     public final int compare(Object o1, Object o2) {
         Tile t1 = (Tile) o1;
