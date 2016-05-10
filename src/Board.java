@@ -470,7 +470,7 @@ public class Board {
                     list.add(c);
                 }
             } catch (ArrayIndexOutOfBoundsException exc) {
-
+//
             }
         }
         return list;
