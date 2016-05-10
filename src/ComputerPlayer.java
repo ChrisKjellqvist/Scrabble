@@ -4,6 +4,14 @@ import java.util.ArrayList;
  * Created by chris and seth on 5/2/16.
  */
 public class ComputerPlayer {
+
+    /**
+     * Given the current board and hand, find the best move.
+     *
+     * @param board - The current board
+     * @param hand  - the players hand to consider
+     * @return - The tile placement of the best move.
+     */
     public static Tile[] getNextMove(Board board, Tile[] hand) {
         ArrayList<Tile> possiblePlaces = new ArrayList<>();
         for (int i = 0; i < board.board.length; i++) {
@@ -15,6 +23,8 @@ public class ComputerPlayer {
                 }
             }
         }
+
+        //Find best place to play tiles by score.
         ArrayList<Tile[]> words = new ArrayList<>();
         ArrayList<Integer> scores = new ArrayList<>();
 
@@ -38,6 +48,13 @@ public class ComputerPlayer {
         return bestTiles;
     }
 
+    /**
+     * Redundant method. Finds the fixed tiles around a tile t.
+     *
+     * @param b - board
+     * @param t - tile
+     * @return - Will return true while its surrounding <= 3 tiles.
+     */
     public static boolean acceptableForComputer(Board b, Tile t) {
         int nonBlanks = 0;
         for (int i = -1; i < 2; i++) {
