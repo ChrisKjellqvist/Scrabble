@@ -1,5 +1,6 @@
 /**
  * Created by chris and seth on 4/23/16.
+ * A Tile is the functional unit of the game, storing the letter, coordinates, and state of the game piece.
  */
 public class Tile {
     /**
@@ -34,11 +35,15 @@ public class Tile {
      */
     public boolean placed;
 
+    //A tile is fixed when it has been played on the board.
     public boolean isFixed = false;
+    //This will store the coordinates of the tile when it has been placed on the board
     public int[] coords = new int[2];
-
+    
+    //The alignment is assigned after it is played, it is used to determine validity of the AI's possible moves.
     public int alignment = Board.UNALIGNED;
-
+    
+    //Constructors compatable with state and letter
     public Tile(int state){
         this.state = state;
     }
@@ -48,11 +53,13 @@ public class Tile {
         state = PLACED_TILE;
     }
 
+    //Used for debugging purposes
     @Override
     public String toString() {
         return "" + state;
     }
 
+    //Defines what it means for a tile to be equal to another tile: when they share the same coordinates
     @Override
     public boolean equals(Object o) {
         Tile t = (Tile) o;
