@@ -162,7 +162,7 @@ public class main {
 
         long t1 = System.currentTimeMillis();
 
-        while (!board.isGameOver()) {
+        while (true) {
             currentHand = home;
             long y = t1 + 15000;
             while (!turnisOver) {
