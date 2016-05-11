@@ -2,6 +2,9 @@ import java.util.ArrayList;
 
 /**
  * Created by chris and seth on 5/2/16.
+ * Handles a static AI. There's no need to make the AI
+ * own anything because it just makes actions so everything
+ * is static.
  */
 public class ComputerPlayer {
 
@@ -64,7 +67,7 @@ public class ComputerPlayer {
                         nonBlanks++;
                     }
                 } catch (ArrayIndexOutOfBoundsException e) {
-
+                    //Does nothing because it doesn't matter.
                 }
             }
         }

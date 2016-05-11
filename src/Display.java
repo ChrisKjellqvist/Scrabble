@@ -10,30 +10,50 @@ import java.util.ArrayList;
  * Created by chris and seth on 4/23/16.
  */
 public class Display extends JPanel {
+    /**
+     * Images for resources on board
+     */
     private static Image star;
     private static Image TWS;
     private static Image DWS;
     private static Image TLS;
     private static Image DLS;
     private static Image[] letters = new Image[26];
+
+    //Screen dimensions
     private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+    //Location and dimensions of board elements
     public int squareSize;
-    //@TODO make private again
     public int boardSize;
     public int leftBorder;
     public int topBorder;
+
+    //Index of the tile being held
     public int beingHeld = -1;
-    public Point mousePoint;
+
+    //Hand of tiles to display
     public Tile[] handToDisplay;
 
+    //Scores. Only read from. Ownership is in main class.
     public int homeScore = 0;
     public int awayScore = 0;
 
+    //Pointer to game board
     Board board;
+
+    //Buffer image of board to paint
     BufferedImage boardBuffer;
+
+    //Tiles that have been placed on the board.
     ArrayList<Tile> tilesPlaced = new ArrayList<>();
 
-
+    /**
+     * Reads in resources, and creates buffer.
+     *
+     * @param board - board that is being drawn. Is owned by main, so this is a pointer
+     * @throws IOException - only thrown if resources aren't found
+     */
     public Display(Board board) throws IOException {
         super();
         this.board = board;
@@ -46,6 +66,7 @@ public class Display extends JPanel {
             letters[i] = ImageIO.read(new File("resources/" + (char) (i + 97) + ".png"));
         }
 
+        //fullscreen
         setPreferredSize(screenSize);
 
         //get square size
@@ -55,6 +76,9 @@ public class Display extends JPanel {
         topBorder = (int) (screenSize.height * .05);
         leftBorder = (int) (screenSize.width * .9 - squareSize * 15);
 
+        /**
+         * Creating the board buffer from the board states
+         */
         boardBuffer = new BufferedImage(boardSize, boardSize, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = boardBuffer.createGraphics();
         g.setColor(Color.white);
@@ -91,11 +115,20 @@ public class Display extends JPanel {
 
     }
 
+    /**
+     * Drawing method. Handles all painting.
+     * @param g - graphics
+     */
     @Override
     public void paintComponent(Graphics g) {
+        //Draw the board
         g.drawImage(boardBuffer, leftBorder, topBorder, boardBuffer.getWidth(), boardBuffer.getHeight(), null);
+
+        //Get location of mouse relative to panel
         Point p = MouseInfo.getPointerInfo().getLocation();
         SwingUtilities.convertPointFromScreen(p, this);
+
+        //color placed tiles
         for (Tile t : tilesPlaced) {
             boolean isValid = board.isValidMove(tilesPlaced);
             g.drawImage(letters[t.letter - 97], t.coords[0] * squareSize + leftBorder,
@@ -119,12 +152,15 @@ public class Display extends JPanel {
                 }
             }
         }
+
+        //Draw the hand and the tile being held
         for (int i = 0; i < handToDisplay.length; i++) {
             if (!handToDisplay[i].placed) {
                 if (i != beingHeld) {
                     g.drawImage(letters[handToDisplay[i].letter - 97], 30, (i + 1) * squareSize,
                             squareSize, squareSize, null);
                 } else {
+                    //Find coordinates of square you would place in and draw you holding tile.
                     if (p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder
                             && p.y < topBorder + boardSize) {
                         int x = (p.x - leftBorder) / squareSize;
@@ -145,17 +181,30 @@ public class Display extends JPanel {
         g.drawString("Away: " + awayScore, 15, (int) (screenSize.height * .7 - 30));
     }
 
+    /**
+     * Paint a set of tiles
+     * @param t - set of tiles
+     */
     public void paintMove(Tile[] t) {
         for (Tile tile : t) {
             paintTile(tile);
         }
     }
 
+    /**
+     * Paint an individual tile to the board buffer
+     * @param t - individual tile to paint to buffer
+     */
     private void paintTile(Tile t) {
         boardBuffer.createGraphics().drawImage(letters[t.letter - 97], t.coords[0] * squareSize, t.coords[1] * squareSize,
                 squareSize, squareSize, null);
     }
 
+    /**
+     * Determines whether the point provided is within the range of coordinates covered by the board buffer
+     * @param p - point
+     * @return - whether or not you are within board
+     */
     boolean withinBoard(Point p) {
         return p.x > leftBorder && p.x < leftBorder + boardSize && p.y > topBorder && p.y < topBorder + boardSize;
     }
