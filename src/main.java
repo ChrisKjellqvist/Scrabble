@@ -179,31 +179,45 @@ public class main {
             bag.remove(temp);
 
         }
+        //tells the display to show the player's hand
         display.handToDisplay = home;
+        //It is the player's turn, so his hand is the current hand
         currentHand = home;
+        //For debugging only; displays the best word possible given the player's hand
         System.out.println(Dictionary.findBestWord(getHandsLetterDistribution(currentHand)));
         frame.setVisible(true);
-
+        
+        //This will ensure the loop does not run so rapidly that it loses function
         long t1 = System.currentTimeMillis();
-
+        
+        //This is the overall loop that contains game logic. The game will proceed on a turn by turn basis inside this loop
         while (true) {
+            //This is the beginning of the player's turn
             currentHand = home;
+            //This sequence defines the time in which the player is playing his move.
             long y = t1 + 15000;
+            //This loop is buffered so that it does not lose functionality
             while (!turnisOver) {
                 if (System.currentTimeMillis() >= y) {
                     y += 15000;
                     System.out.print(" ");
                 }
             }
+            //When the spacebar is pressed, the turn is over and the variable is set to true, ending the previous loop. This resets it
             turnisOver = false;
+            //This will store the move in a format from which score can be calculated
             Tile[] move = new Tile[display.tilesPlaced.size()];
             display.tilesPlaced.toArray(move);
+            //Calculates the score from the move that was played
             homeScore += board.getScore(move);
+            //calls the helper method that executes the move
             doTurn(move);
-
+    
+            //displays the updated score for the human player and paints it
             display.homeScore = homeScore;
             display.repaint();
-
+            
+            //If the game is over, then the main loop should end and code proceeds with end of game
             if (board.isGameOver()) break;
 
             /**
@@ -212,14 +226,18 @@ public class main {
              *
              */
             display.repaint();
+            //This is the beginning of the AI's turn, and his hand is the current Hand now
             currentHand = away;
 
+            //Calls the method of the AI class to get the next move
             Tile[] CPMove = ComputerPlayer.getNextMove(board, currentHand);
+            //Updates the score, executes the move, and displays the game changes
             awayScore += board.getScore(CPMove);
             doTurn(CPMove);
             display.awayScore = awayScore;
             display.repaint();
-
+            
+            //If the game is over, then the main loop should end and code proceeds with end of game
             if (board.isGameOver()) break;
 
         }
