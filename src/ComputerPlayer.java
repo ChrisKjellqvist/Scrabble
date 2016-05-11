@@ -40,15 +40,19 @@ public class ComputerPlayer {
                 scores.add(score);
             }
         }
-        Tile[] bestTiles = words.get(0);
-        int bestScore = scores.get(0);
-        for (int i = 1; i < words.size(); i++) {
-            if (scores.get(i) > bestScore) {
-                bestScore = scores.get(i);
-                bestTiles = words.get(i);
+        if (words.size() >= 1) {
+            Tile[] bestTiles = words.get(0);
+            int bestScore = scores.get(0);
+            for (int i = 1; i < words.size(); i++) {
+                if (scores.get(i) > bestScore) {
+                    bestScore = scores.get(i);
+                    bestTiles = words.get(i);
+                }
             }
+            return bestTiles;
+        } else {
+            return null;
         }
-        return bestTiles;
     }
 
     /**

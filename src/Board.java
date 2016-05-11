@@ -475,4 +475,8 @@ public class Board {
         }
         return list;
     }
+
+    public boolean isGameOver() {
+        return false;
+    }
 }

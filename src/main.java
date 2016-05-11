@@ -10,25 +10,35 @@ import java.util.ArrayList;
  * This is the class that runs the game. It contains the majority of the game logic.
  */
 public class main {
-    
+
+    /**
+     * Used for getGameDecision
+     */
+    static final int PLAY = 0;
+    static final int REDRAW_TILES = 1;
+    static final int GAME_OVER = 2;
     //Instance variables vital to gameplay. Display runs the GUI, the board contains all game board info, and the bag will contain Tiles
     static Display display;
     static Board board = new Board();
     static ArrayList<Tile> bag = new ArrayList<>();
-    
     //home and away are the "hands" of the players, home is the human player and away is the AI. Current hand is a temp holder used to update hands.
     static Tile[] home = new Tile[7];
     static Tile[] away = new Tile[7];
     static Tile[] currentHand;
-
     //variables storing the scores for the human player. homeScore, and the AI, awayScore
     static int homeScore = 0;
     static int awayScore = 0;
-
     //stores whether or not the human's turn is over.
     static boolean turnisOver = false;
     //First turn must be played on center star, this variable which is only true the first round ensures this rule is followed.
     static boolean firstTurn = true;
+
+    /**
+     * main method
+     *
+     * @param args
+     * @throws IOException
+     */
     
     //Main method
     public static void main(String[] args) throws IOException {
@@ -168,17 +178,9 @@ public class main {
         });
         
         //fills each player's hand from the bag at the beginning of the game
-        int temp;
-        for (int i = 0; i < 7; i++) {
-            temp = (int) (Math.random() * (bag.size() - 1));
-            home[i] = bag.get(temp);
-            bag.remove(temp);
+        drawTiles(away);
+        drawTiles(home);
 
-            temp = (int) (Math.random() * (bag.size() - 1));
-            away[i] = bag.get(temp);
-            bag.remove(temp);
-
-        }
         //tells the display to show the player's hand
         display.handToDisplay = home;
         //It is the player's turn, so his hand is the current hand
@@ -191,7 +193,31 @@ public class main {
         long t1 = System.currentTimeMillis();
         
         //This is the overall loop that contains game logic. The game will proceed on a turn by turn basis inside this loop
-        while (true) {
+
+        //boolean for determining game progress
+        boolean continueGame = true;
+        //decision for whether game should continue
+        int decision;
+
+        while (continueGame) {
+            decision = getGameDecision();
+            if (!firstTurn) {
+                switch (decision) {
+                    case REDRAW_TILES:
+                        if (ComputerPlayer.getNextMove(board, home) == null) {
+                            redrawTiles(home);
+                        } else {
+                            redrawTiles(away);
+                        }
+                        break;
+                    case GAME_OVER:
+                        continueGame = false;
+                        break;
+
+                }
+            }
+            firstTurn = false;
+
             //This is the beginning of the player's turn
             currentHand = home;
             //This sequence defines the time in which the player is playing his move.
@@ -218,8 +244,20 @@ public class main {
             display.repaint();
             
             //If the game is over, then the main loop should end and code proceeds with end of game
-            if (board.isGameOver()) break;
+            decision = getGameDecision();
+            switch (decision) {
+                case REDRAW_TILES:
+                    if (ComputerPlayer.getNextMove(board, home) == null) {
+                        redrawTiles(home);
+                    } else {
+                        redrawTiles(away);
+                    }
+                    break;
+                case GAME_OVER:
+                    continueGame = false;
+                    break;
 
+            }
             /**
              *
              *  SWITCHING SIDES
@@ -236,10 +274,6 @@ public class main {
             doTurn(CPMove);
             display.awayScore = awayScore;
             display.repaint();
-            
-            //If the game is over, then the main loop should end and code proceeds with end of game
-            if (board.isGameOver()) break;
-
         }
     }
 
@@ -302,6 +336,50 @@ public class main {
             for (int j = 0; j < distributions[i]; j++) {
                 bag.add(new Tile((char) (97 + i)));
             }
+        }
+    }
+
+    /**
+     * Determines whether game should continue and what move the game should make
+     *
+     * @return - the decision
+     */
+    public static int getGameDecision() {
+        if (ComputerPlayer.getNextMove(board, home) == null && ComputerPlayer.getNextMove(board, away) == null) {
+            if (bag.size() == 0) {
+                return GAME_OVER;
+            } else {
+                return REDRAW_TILES;
+            }
+        } else {
+            return PLAY;
+        }
+    }
+
+    /**
+     * Redraw tiles from hand
+     *
+     * @param hand - hand to redo
+     */
+    public static void redrawTiles(Tile[] hand) {
+        for (int i = 0; i < hand.length; i++) {
+            bag.add(hand[i]);
+        }
+        drawTiles(hand);
+
+    }
+
+    /**
+     * Draws tile from bag and places them in the hand
+     *
+     * @param hand - hand of tiles
+     */
+    public static void drawTiles(Tile[] hand) {
+        int temp;
+        for (int i = 0; i < 7; i++) {
+            temp = (int) (Math.random() * (bag.size() - 1));
+            hand[i] = bag.get(temp);
+            bag.remove(temp);
         }
     }
 }
