@@ -32,6 +32,13 @@ public class main {
     static boolean turnisOver = false;
     //First turn must be played on center star, this variable which is only true the first round ensures this rule is followed.
     static boolean firstTurn = true;
+    /**
+     * Determines whether game should continue and what move the game should make
+     *
+     * @return - the decision
+     */
+
+    static int timesCalledInARow = 0;
 
     /**
      * main method
@@ -39,7 +46,7 @@ public class main {
      * @param args
      * @throws IOException
      */
-    
+
     //Main method
     public static void main(String[] args) throws IOException {
         JFrame frame = new JFrame("Scrabble");
@@ -67,7 +74,7 @@ public class main {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                //When the mouse is click, this determines the location of the cursor and responds accordingly. 
+                //When the mouse is click, this determines the location of the cursor and responds accordingly.
                 //for example, determines which tile has been picked up
                 //Below is when a tile has been grabbed from the player's hand
                 if (e.getX() > 30 && e.getX() < 30 + display.squareSize) {
@@ -98,7 +105,7 @@ public class main {
 
                 }
             }
-            
+
             //Governs rules for when the mouse is released
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -149,7 +156,7 @@ public class main {
 
             }
         });
-        //Pressing the spacebar submits the current word. 
+        //Pressing the spacebar submits the current word.
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -183,7 +190,7 @@ public class main {
 
             }
         });
-        
+
         //fills each player's hand from the bag at the beginning of the game
         drawTiles(away);
         drawTiles(home);
@@ -195,17 +202,13 @@ public class main {
         //For debugging only; displays the best word possible given the player's hand
         System.out.println(Dictionary.findBestWord(getHandsLetterDistribution(currentHand)));
         frame.setVisible(true);
-        
+
         //This will ensure the loop does not run so rapidly that it loses function
         long t1 = System.currentTimeMillis();
-        
+
         //This is the overall loop that contains game logic. The game will proceed on a turn by turn basis inside this loop
-
-        //boolean for determining game progress
         boolean continueGame = true;
-        //decision for whether game should continue
         int decision;
-
         while (continueGame) {
             decision = getGameDecision();
             if (!firstTurn) {
@@ -227,9 +230,13 @@ public class main {
 
             //This is the beginning of the player's turn
             currentHand = home;
-            //This sequence defines the time in which the player is playing his move.
+            /**
+             * There is no purpose to this loop only to let the player have time to make a move.
+             * If the loop did nothing, then it never terminated when we pressed space, so we make
+             * it do something useless so it doesn't mess up. This could be fixed if Java had a
+             * better event system that I knew about.
+             */
             long y = t1 + 15000;
-            //This loop is buffered so that it does not lose functionality
             while (!turnisOver) {
                 if (System.currentTimeMillis() >= y) {
                     y += 15000;
@@ -238,19 +245,16 @@ public class main {
             }
             //When the spacebar is pressed, the turn is over and the variable is set to true, ending the previous loop. This resets it
             turnisOver = false;
-            //This will store the move in a format from which score can be calculated
             Tile[] move = new Tile[display.tilesPlaced.size()];
             display.tilesPlaced.toArray(move);
-            //Calculates the score from the move that was played
             homeScore += board.getScore(move);
-            //calls the helper method that executes the move
             home = doTurn(move, home);
             display.handToDisplay = home;
-    
+
             //displays the updated score for the human player and paints it
             display.homeScore = homeScore;
             display.repaint();
-            
+
             //If the game is over, then the main loop should end and code proceeds with end of game
             decision = getGameDecision();
             switch (decision) {
@@ -285,7 +289,7 @@ public class main {
         }
     }
 
-    //Returns the word that is currently played on the screen as a String. 
+    //Returns the word that is currently played on the screen as a String.
     static String getCurrentWord() {
         String t = "";
         for (Tile temp : display.tilesPlaced) {
@@ -293,6 +297,9 @@ public class main {
         }
         return t;
     }
+
+    //This method takes a valid move in the form of an array of
+    // Tiles and executes the move, including calling display updates
 
     //This takes an array of tiles and returns the distribution of the represented word (see Dictionary class for "distribution")
     public static byte[] getHandsLetterDistribution(Tile[] ar) {
@@ -302,10 +309,7 @@ public class main {
         }
         return toReturn;
     }
-
-    //This method takes a valid move in the form of an array of
-    // Tiles and executes the move, including calling display updates
-
+    
     /**
      * Takes a move and plays it and gets a new hand.
      *
@@ -349,10 +353,10 @@ public class main {
         display.repaint();
         return newHand;
     }
-    
+
     //Fills the bag with letters based on the distribution of the tiles in a normal scrabble bag. Called once at the beginning of the game
     private static void makeBag() {
-        //hardcoded distributions that govern the number of tiles in existence 
+        //hardcoded distributions that govern the number of tiles in existence
         int[] distributions = {9, 2, 2, 4, 12, 2, 3, 2, 9, 1, 1, 4, 2, 6, 8, 2, 1, 6, 4, 6, 4, 2, 2, 1, 2, 1};
         //i = letters in the alphabet
         for (int i = 0; i < 26; i++) {
@@ -362,19 +366,16 @@ public class main {
         }
     }
 
-    /**
-     * Determines whether game should continue and what move the game should make
-     *
-     * @return - the decision
-     */
     public static int getGameDecision() {
         if (ComputerPlayer.getNextMove(board, home) == null && ComputerPlayer.getNextMove(board, away) == null) {
-            if (bag.size() == 0) {
+            if (bag.size() == 0 || timesCalledInARow == 1) {
                 return GAME_OVER;
             } else {
+                timesCalledInARow++;
                 return REDRAW_TILES;
             }
         } else {
+            timesCalledInARow = 0;
             return PLAY;
         }
     }

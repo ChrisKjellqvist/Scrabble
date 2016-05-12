@@ -255,6 +255,12 @@ public class Board {
         return tilesForWord;
     }
 
+    /**
+     * Finds whether or not a word will fit in the tiles given
+     *
+     * @param tiles - tiles for word to be spelled
+     * @return - can the word be spelled?
+     */
     public boolean fitsAtLetter(Tile[] tiles) {
         if (tiles == null) {
             return false;
@@ -273,9 +279,7 @@ public class Board {
 
         //Used to tell whether or not you are incrementing the suffix or prefix lengths.
         boolean temp = true;
-        //Letters before the fixed letter.
         int prefixLength = 0;
-        //Letters after the fixed letter.
         int suffixLength = 0;
         Tile t = new Tile(0);
         for (int i = 0; i < tiles.length; i++) {
@@ -300,15 +304,6 @@ public class Board {
          * This particular piece of code checks that it doesn't have any connecting tiles
          * before or after the word, or to the sides of the word.
          */
-        int constant;
-        int pivot;
-        if (alignment == Board.HORIZONTAL_ALIGNMENT) {
-            constant = t.coords[1];
-            pivot = t.coords[0];
-        } else {
-            constant = t.coords[0];
-            pivot = t.coords[1];
-        }
 
         if (alignment == HORIZONTAL_ALIGNMENT) {
             try {
@@ -350,50 +345,53 @@ public class Board {
          * boring and in our opinion detracts from the spirit of the game.
          *
          * So as a result, we're checking that there are no tiles placed parallel.
+         *
          */
 
-        for (int i = pivot - prefixLength; i < pivot; i++) {
-                if (alignment == HORIZONTAL_ALIGNMENT) {
-                    for (int j = -1; j <= 1; j += 2) {
-                        try {
-                            if (board[constant + j][i].state == Tile.PLACED_TILE) {
-                                return false;
-                            }
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            //Can play on sides so doesn't matter
-                        }
-                    }
-                } else {
-                    for (int j = -1; j <= 1; j += 2) {
-                        try {
-                            if (board[i][constant + j].state == Tile.PLACED_TILE) {
-                                return false;
-                            }
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            //Can play on sides so doesn't matter
-                        }
-                    }
-                }
-        }
-        for (int i = pivot + suffixLength; i > pivot; i--) {
-            if (alignment == HORIZONTAL_ALIGNMENT) {
+        if (alignment == HORIZONTAL_ALIGNMENT) {
+            for (int i = t.coords[0] - prefixLength; i < t.coords[0]; i++) {
                 for (int j = -1; j <= 1; j += 2) {
                     try {
-                        if (board[constant + j][i].state == Tile.PLACED_TILE) {
+                        if (board[i][tiles[0].coords[1] + j].state == Tile.PLACED_TILE) {
                             return false;
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        //Words can be spelled on the sides so nothing should be done
+                        //Can play on sides so doesn't matter
                     }
                 }
-            } else {
+            }
+            for (int i = t.coords[0] + suffixLength; i > t.coords[0]; i--) {
                 for (int j = -1; j <= 1; j += 2) {
                     try {
-                        if (board[i][constant + j].state == Tile.PLACED_TILE) {
+                        if (board[i][tiles[0].coords[1] + j].state == Tile.PLACED_TILE) {
                             return false;
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        //Words can be spelled on sides so it doesn't matter
+                        //Can play on sides so doesn't matter
+                    }
+                }
+            }
+
+        } else {
+            for (int i = t.coords[1] - prefixLength; i < t.coords[1]; i++) {
+                for (int j = -1; j <= 1; j+=2) {
+                    try {
+                        if (board[tiles[0].coords[0] + j][i].state == Tile.PLACED_TILE) {
+                            return false;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        //Can play on sides so doesn't matter
+                    }
+                }
+            }
+            for (int i = t.coords[1] + suffixLength; i > t.coords[1]; i--) {
+                for (int j = -1; j <= 1; j+=2) {
+                    try {
+                        if (board[tiles[0].coords[0] + j][i].state == Tile.PLACED_TILE) {
+                            return false;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        //Can play on sides so doesn't matter
                     }
                 }
             }
@@ -506,7 +504,4 @@ public class Board {
         return list;
     }
 
-    public boolean isGameOver() {
-        return false;
-    }
 }
