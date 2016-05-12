@@ -39,6 +39,9 @@ public class Display extends JPanel {
     public int homeScore = 0;
     public int awayScore = 0;
 
+    //Message you can send to user
+    public String message = "";
+
     //Pointer to game board
     Board board;
 
@@ -179,6 +182,7 @@ public class Display extends JPanel {
         g.setColor(Color.black);
         g.drawString("Home: " + homeScore, 15, (int) (screenSize.height * .7));
         g.drawString("Away: " + awayScore, 15, (int) (screenSize.height * .7 - 30));
+        g.drawString("Message: " + this.message, 15, (int) (screenSize.height * .7 - 60));
     }
 
     /**

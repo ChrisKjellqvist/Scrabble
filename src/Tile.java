@@ -56,7 +56,7 @@ public class Tile {
     //Used for debugging purposes
     @Override
     public String toString() {
-        return "" + state;
+        return letter + " ";
     }
 
     //Defines what it means for a tile to be equal to another tile: when they share the same coordinates

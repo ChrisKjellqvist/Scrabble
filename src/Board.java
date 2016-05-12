@@ -194,6 +194,9 @@ public class Board {
      * @return - Tile placement of the word
      */
     public Tile[] getTilePlacement(String word, Tile fixed) {
+        if (word == null) {
+            return null;
+        }
         Tile[] tilesForWord = new Tile[word.length()];
         boolean q = true;
         int prefixLength = 0;
@@ -253,6 +256,9 @@ public class Board {
     }
 
     public boolean fitsAtLetter(Tile[] tiles) {
+        if (tiles == null) {
+            return false;
+        }
         for (int i = 0; i < tiles.length; i++) {
             try {
                 if (board[tiles[i].coords[0]][tiles[i].coords[1]].state == Tile.PLACED_TILE && !tiles[i].isFixed) {
@@ -304,37 +310,36 @@ public class Board {
             pivot = t.coords[1];
         }
 
-        switch (alignment) {
-            //Are there tiles before or after the word being spelled?
-            case Board.HORIZONTAL_ALIGNMENT:
-                try {
-                    if (board[constant][pivot - prefixLength - 1].state == Tile.PLACED_TILE) {
-                        return false;
-                    }
-                    if (board[constant][pivot + suffixLength + 1].state == Tile.PLACED_TILE) {
-                        return false;
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    //Should have already been accounted for but JUST IN CASE
-                    if (pivot - prefixLength < 0 || pivot + suffixLength >= 15) {
-                        return false;
-                    }
+        if (alignment == HORIZONTAL_ALIGNMENT) {
+            try {
+                if (board[t.coords[0] - prefixLength - 1][t.coords[1]].state == Tile.PLACED_TILE) {
+                    return false;
                 }
-                break;
-            case Board.VERTICAL_ALIGNMENT:
-                try {
-                    if (board[pivot - prefixLength - 1][constant].state == Tile.PLACED_TILE) {
-                        return false;
-                    }
-                    if (board[pivot + suffixLength + 1][constant].state == Tile.PLACED_TILE) {
-                        return false;
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    if (pivot - prefixLength - 1 < 0 || pivot + suffixLength + 1 >= 15) {
-                        return false;
-                    }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                //
+            }
+            try {
+                if (board[t.coords[0] + suffixLength + 1][t.coords[1]].state == Tile.PLACED_TILE) {
+                    return false;
                 }
-                break;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                //
+            }
+        } else {
+            try {
+                if (board[t.coords[0]][t.coords[1] - prefixLength - 1].state == Tile.PLACED_TILE) {
+                    return false;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                //
+            }
+            try {
+                if (board[t.coords[0]][t.coords[1] + suffixLength + 1].state == Tile.PLACED_TILE) {
+                    return false;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                //
+            }
         }
 
         /**
@@ -348,24 +353,49 @@ public class Board {
          */
 
         for (int i = pivot - prefixLength; i < pivot; i++) {
-            try {
                 if (alignment == HORIZONTAL_ALIGNMENT) {
                     for (int j = -1; j <= 1; j += 2) {
-                        if (board[constant + j][i].state == Tile.PLACED_TILE) {
-                            return false;
+                        try {
+                            if (board[constant + j][i].state == Tile.PLACED_TILE) {
+                                return false;
+                            }
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            //Can play on sides so doesn't matter
                         }
                     }
                 } else {
                     for (int j = -1; j <= 1; j += 2) {
-                        if (board[i][constant + j].state == Tile.PLACED_TILE) {
-                            return false;
+                        try {
+                            if (board[i][constant + j].state == Tile.PLACED_TILE) {
+                                return false;
+                            }
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            //Can play on sides so doesn't matter
                         }
                     }
                 }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                //This will be called if constant + j is outside of the board but this
-                //is a corner case, and since words can be spelled on the sides,
-                //there should be nothing done about it.
+        }
+        for (int i = pivot + suffixLength; i > pivot; i--) {
+            if (alignment == HORIZONTAL_ALIGNMENT) {
+                for (int j = -1; j <= 1; j += 2) {
+                    try {
+                        if (board[constant + j][i].state == Tile.PLACED_TILE) {
+                            return false;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        //Words can be spelled on the sides so nothing should be done
+                    }
+                }
+            } else {
+                for (int j = -1; j <= 1; j += 2) {
+                    try {
+                        if (board[i][constant + j].state == Tile.PLACED_TILE) {
+                            return false;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        //Words can be spelled on sides so it doesn't matter
+                    }
+                }
             }
         }
 

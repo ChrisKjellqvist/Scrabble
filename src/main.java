@@ -43,15 +43,12 @@ public class main {
     //Main method
     public static void main(String[] args) throws IOException {
         JFrame frame = new JFrame("Scrabble");
-        //fills the bag with tiles
         makeBag();
         //creates the dictionary for this Scrabble game
         Dictionary dictionary = new Dictionary(new File("resources/ospd.txt"));
         frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
-        //Instantiates the display and adds components
         display = new Display(board);
         frame.add(display);
-        //Creates a timer that will govern repainting when a tile is being dragged by the mouse
         Timer time = new Timer(1000 / 30, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -161,8 +158,18 @@ public class main {
             //If the spacebar is pressed and a current legal move is on the board, the game proceeds accordingly
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyChar() == ' ' && Dictionary.isWord(getCurrentWord())) {
-                    turnisOver = true;
+                if (e.getKeyChar() == ' ') {
+                    if (Dictionary.isWord(getCurrentWord())) {
+                        turnisOver = true;
+                        display.message = "";
+                    } else {
+                        if (display.message.contains("Not a word")) {
+                            display.message = display.message + "!!";
+                        } else {
+                            display.message = "Not a word";
+                        }
+                        display.repaint();
+                    }
                 } else if (e.getKeyChar() == 'r') {
                     display.tilesPlaced.clear();
                     for (Tile t : display.handToDisplay) {
@@ -237,7 +244,8 @@ public class main {
             //Calculates the score from the move that was played
             homeScore += board.getScore(move);
             //calls the helper method that executes the move
-            doTurn(move);
+            home = doTurn(move, home);
+            display.handToDisplay = home;
     
             //displays the updated score for the human player and paints it
             display.homeScore = homeScore;
@@ -271,7 +279,7 @@ public class main {
             Tile[] CPMove = ComputerPlayer.getNextMove(board, currentHand);
             //Updates the score, executes the move, and displays the game changes
             awayScore += board.getScore(CPMove);
-            doTurn(CPMove);
+            away = doTurn(CPMove, away);
             display.awayScore = awayScore;
             display.repaint();
         }
@@ -295,36 +303,51 @@ public class main {
         return toReturn;
     }
 
-    //This method takes a valid move in the form of an array of Tiles and executes the move, including calling display updates
-    private static void doTurn(Tile[] move) {
-        int temp;
-        //calls display to update the visual board with the new move
-        display.paintMove(move);
-        display.repaint();
+    //This method takes a valid move in the form of an array of
+    // Tiles and executes the move, including calling display updates
 
-        //executes the move in the board class    
-        board.doMove(move);
-        
-        //newHand will contain the current players hand after modifications have been made by playing tiles and drawing from bag
+    /**
+     * Takes a move and plays it and gets a new hand.
+     *
+     * @param move - move to play
+     * @param hand - hand of player
+     * @return - the new hand that the player should have after the turn
+     */
+    private static Tile[] doTurn(Tile[] move, Tile[] hand) {
+        display.paintMove(move);
+
+        //display.tilesPlaced.clear();
+        //for(Tile t: move){
+        //    display.tilesPlaced.add(t);
+        //}
+
         Tile[] newHand = new Tile[7];
 
-        //i = current index of newHand
         //fills the new hand with either new tiles from the bag or with unused tiles from the player's hand
-        for (int i = 0; i < currentHand.length; i++) {
-            if (!display.tilesPlaced.contains(currentHand[i])) {
-                newHand[i] = currentHand[i];
-            } else {
-                if (bag.size() >= 1) {
-                    temp = (int) (Math.random() * (bag.size() - 1));
-                    currentHand[i] = bag.get(temp);
-                    bag.remove(temp);
+        for (int i = 0; i < hand.length; i++) {
+            boolean triggered = true;
+            for (int j = 0; j < move.length; j++) {
+                if (move[j].letter == hand[i].letter && !move[j].isFixed) {
+                    if (bag.size() >= 1) {
+                        int t = (int) (Math.random() * (bag.size() - 1));
+                        newHand[i] = bag.get(t);
+                        bag.remove(t);
+                    }
+                    j = move.length;
+                    triggered = false;
                 }
             }
+            if (triggered) {
+                newHand[i] = hand[i];
+            }
         }
-        //Updates display of player's hand
+
+
+        //executes the move in the board class
+        board.doMove(move);
         display.tilesPlaced.clear();
-        //transfers the changes of the hand to the current hand
-        currentHand = newHand;
+        display.repaint();
+        return newHand;
     }
     
     //Fills the bag with letters based on the distribution of the tiles in a normal scrabble bag. Called once at the beginning of the game

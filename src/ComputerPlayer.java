@@ -75,6 +75,6 @@ public class ComputerPlayer {
                 }
             }
         }
-        return nonBlanks <= 3;
+        return nonBlanks <= 4;
     }
 }
